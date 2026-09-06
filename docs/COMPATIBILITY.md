@@ -30,7 +30,7 @@ The fixture is downloaded from Modrinth only for the opt-in development or CI ru
 
 ## Optional Mod Menu integration
 
-Mod Menu 20.0.1 can expose StepUp Camera Smoother's configuration screen. The screen uses native Minecraft widgets and does not use Cloth Config. It provides a 0% to 100% Smoothness slider backed by the existing `smoothing_strength` JSON value.
+Mod Menu 20.0.1 can expose StepUp Camera Smoother's configuration screen. The screen uses native Minecraft widgets and does not use Cloth Config. It provides a 0% to 200% Smoothness slider backed by `smoothing_strength` plus a rear/front third-person toggle backed by `smooth_third_person`.
 
 The CI fixture resolves Mod Menu project `mOgUt4GM`, version `njXb639R`, plus Text Placeholder API project `eXts2L7r`, version `NDqH16LT`. These immutable Modrinth identifiers match the Minecraft 26.2 releases and are used only by the opt-in test runtime.
 
@@ -44,10 +44,12 @@ The detector should also work with another mod that raises the vanilla effective
 
 It may not detect a mod that teleports the player upward, directly rewrites camera position, replaces collision handling, or performs movement outside `LocalPlayer.move`.
 
-Other configuration-screen providers do not affect the JSON loader. When Mod Menu is present, selecting Done persists the slider and applies it immediately. Manual JSON changes still require a client restart.
+Other configuration-screen providers do not affect the JSON loader. When Mod Menu is present, selecting Done persists both exposed controls and applies them immediately. Manual JSON changes still require a client restart. Versionless alpha.2 configurations migrate once to configuration version 1 with third-person smoothing enabled.
 
 ## Conflicts
 
 Do not run this alongside Countered's Smooth Steps or another mod that already adds a step camera offset. Multiple camera corrections can stack.
 
-Third-person smoothing is disabled by default in the alpha. When enabled, it happens after vanilla calculates camera collision distance but before frustum preparation. It must be manually checked near walls and low ceilings before becoming a default.
+Third-person smoothing is enabled by default and can be disabled through Mod Menu or JSON. The offset is applied before vanilla calculates detached-camera distance and wall collision, so collision uses the smoothed pivot. Camera, replay, VR, shader, and perspective mods still require manual interoperability checks.
+
+Smoothness from 101% through 200% extends recovery time without increasing the initial inverse offset beyond the detected step height. This prevents downward overshoot and limits added third-person collision risk.

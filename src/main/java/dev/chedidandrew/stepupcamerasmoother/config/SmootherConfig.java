@@ -2,6 +2,9 @@ package dev.chedidandrew.stepupcamerasmoother.config;
 
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
+import com.google.gson.JsonElement;
+import com.google.gson.JsonObject;
+import com.google.gson.JsonParser;
 import com.google.gson.annotations.SerializedName;
 import dev.chedidandrew.stepupcamerasmoother.motion.EasingCurve;
 import net.fabricmc.loader.api.FabricLoader;
@@ -20,8 +23,10 @@ import java.util.Locale;
 /** JSON configuration storage shared by manual and in-game configuration. */
 public final class SmootherConfig {
     public static final String FILE_NAME = "stepup-camera-smoother.json";
+    public static final double MAXIMUM_SMOOTHING_STRENGTH = 2.0D;
 
     private static final Gson GSON = new GsonBuilder().setPrettyPrinting().create();
+    private static final int CURRENT_CONFIG_VERSION = 1;
     private static final int MINIMUM_DURATION_MILLISECONDS = 50;
     private static final int MAXIMUM_DURATION_MILLISECONDS = 1_000;
     private static final double MINIMUM_CAMERA_LAG = 0.25D;
@@ -50,16 +55,57 @@ public final class SmootherConfig {
             return;
         }
 
-        try (Reader reader = Files.newBufferedReader(configPath, StandardCharsets.UTF_8)) {
-            ConfigData parsed = GSON.fromJson(reader, ConfigData.class);
-            if (parsed == null) {
-                throw new IllegalArgumentException("configuration root is null");
+        try {
+            Snapshot loaded;
+            boolean migrated;
+            try (Reader reader = Files.newBufferedReader(configPath, StandardCharsets.UTF_8)) {
+                JsonElement root = JsonParser.parseReader(reader);
+                if (root == null || !root.isJsonObject()) {
+                    throw new IllegalArgumentException("configuration root is not an object");
+                }
+
+                JsonObject object = root.getAsJsonObject();
+                ConfigData parsed = GSON.fromJson(object, ConfigData.class);
+                if (parsed == null) {
+                    throw new IllegalArgumentException("configuration root is null");
+                }
+                if (parsed.configVersion > CURRENT_CONFIG_VERSION) {
+                    throw new IllegalArgumentException(
+                            "unsupported configuration version " + parsed.configVersion
+                    );
+                }
+
+                migrated = !object.has("config_version")
+                        || object.get("config_version").isJsonNull()
+                        || parsed.configVersion < CURRENT_CONFIG_VERSION;
+                if (migrated) {
+                    parsed.configVersion = CURRENT_CONFIG_VERSION;
+                    parsed.smoothThirdPerson = true;
+                }
+                loaded = parsed.toSnapshot();
             }
-            current = parsed.toSnapshot();
+
+            current = loaded;
+            if (migrated) {
+                persistMigration(configPath, current, logger);
+            }
         } catch (IOException | RuntimeException exception) {
             current = Snapshot.defaults();
             logger.error(
                     "Could not read {}. Safe defaults will be used until the next restart.",
+                    configPath,
+                    exception
+            );
+        }
+    }
+
+    private static void persistMigration(Path configPath, Snapshot snapshot, Logger logger) {
+        try {
+            writeAtomically(configPath, ConfigData.fromSnapshot(snapshot));
+            logger.info("Updated {} to configuration version {}.", configPath, CURRENT_CONFIG_VERSION);
+        } catch (IOException | RuntimeException exception) {
+            logger.warn(
+                    "Could not persist the configuration upgrade for {}. The upgraded settings remain active for this launch.",
                     configPath,
                     exception
             );
@@ -170,15 +216,30 @@ public final class SmootherConfig {
                     enabled,
                     recoveryDurationMilliseconds,
                     easing,
-                    clamp(value, 0.0D, 1.0D, 1.0D),
+                    clamp(value, 0.0D, MAXIMUM_SMOOTHING_STRENGTH, 1.0D),
                     maximumCameraLag,
                     smoothThirdPerson,
+                    debugLogging
+            );
+        }
+
+        public Snapshot withSmoothThirdPerson(boolean value) {
+            return new Snapshot(
+                    enabled,
+                    recoveryDurationMilliseconds,
+                    easing,
+                    smoothingStrength,
+                    maximumCameraLag,
+                    value,
                     debugLogging
             );
         }
     }
 
     private static final class ConfigData {
+        @SerializedName("config_version")
+        private int configVersion = CURRENT_CONFIG_VERSION;
+
         private boolean enabled = true;
 
         @SerializedName("recovery_duration_ms")
@@ -193,13 +254,14 @@ public final class SmootherConfig {
         private double maximumCameraLag = 2.5D;
 
         @SerializedName("smooth_third_person")
-        private boolean smoothThirdPerson;
+        private boolean smoothThirdPerson = true;
 
         @SerializedName("debug_logging")
         private boolean debugLogging;
 
         private static ConfigData fromSnapshot(Snapshot snapshot) {
             ConfigData data = new ConfigData();
+            data.configVersion = CURRENT_CONFIG_VERSION;
             data.enabled = snapshot.enabled();
             data.recoveryDurationMilliseconds = snapshot.recoveryDurationMilliseconds();
             data.easing = snapshot.easing() == null
@@ -221,7 +283,12 @@ public final class SmootherConfig {
                             MAXIMUM_DURATION_MILLISECONDS
                     ),
                     EasingCurve.parse(easing),
-                    clamp(smoothingStrength, 0.0D, 1.0D, 1.0D),
+                    clamp(
+                            smoothingStrength,
+                            0.0D,
+                            MAXIMUM_SMOOTHING_STRENGTH,
+                            1.0D
+                    ),
                     clamp(
                             maximumCameraLag,
                             MINIMUM_CAMERA_LAG,

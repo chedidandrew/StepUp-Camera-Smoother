@@ -12,7 +12,7 @@ This alpha line is designed around [StepItUp 3.0](https://modrinth.com/mod/stepi
 - Applies a render-only world-Y camera offset. Player position, hitbox, reach, physics, and network packets are unchanged.
 - Cancels the initial one-tick vertical snap, then eases the camera to the new height.
 - Handles consecutive steps by adding short-lived transitions with a bounded total lag.
-- Supports first-person by default, with opt-in rear and front third-person smoothing for testing.
+- Supports first-person plus rear and front third-person smoothing by default.
 - Resets immediately for jumps, swimming, ladders, flight, elytra, vehicles, spectator mode, death, respawn, world changes, and non-player movement sources.
 - Requires no configuration library, Architectury API, or direct StepItUp dependency. Mod Menu support is optional.
 
@@ -46,13 +46,15 @@ Until the first release is manually approved, test jars are available only as ar
 
 ## Configuration
 
-With Mod Menu installed, open **Mods**, select **StepUp Camera Smoother**, and open its configuration screen. The **Smoothness** slider ranges from 0% to 100%:
+With Mod Menu installed, open **Mods**, select **StepUp Camera Smoother**, and open its configuration screen. The **Smoothness** slider ranges from 0% to 200%:
 
 - 0% leaves the original upward camera motion unchanged.
 - 50% smooths half of each upward camera snap.
 - 100% applies full smoothing and is the default.
+- 150% keeps full correction and extends the recovery to 1.5 times its configured duration.
+- 200% keeps full correction and extends the recovery to twice its configured duration.
 
-Select **Done** to save and apply the value immediately. The current camera transition is cleared so the next eligible step uses the new setting. **Cancel** or Escape discards changes made on the screen. **Reset** returns the slider to its 100% default without changing the other JSON settings.
+The **Third Person** control enables or disables smoothing in both rear and front third-person views. Select **Done** to save and apply both values immediately. The current camera transition is cleared so the next eligible step uses the new settings. **Cancel** or Escape discards changes made on the screen. **Reset** restores 100% Smoothness and enables third-person smoothing without changing the other JSON settings.
 
 Mod Menu is an optional integration, not a dependency required to start or use the mod. StepUp Camera Smoother does not use Cloth Config.
 
@@ -60,17 +62,20 @@ The generated file is `config/stepup-camera-smoother.json`:
 
 ```json
 {
+  "config_version": 1,
   "enabled": true,
   "recovery_duration_ms": 180,
   "easing": "smootherstep",
   "smoothing_strength": 1.0,
   "maximum_camera_lag": 2.5,
-  "smooth_third_person": false,
+  "smooth_third_person": true,
   "debug_logging": false
 }
 ```
 
-The GUI slider stores `smoothing_strength` as a value from `0.0` to `1.0`. Changes saved through Mod Menu take effect immediately. Restart the client after editing the JSON file manually.
+The GUI slider stores `smoothing_strength` as a value from `0.0` to `2.0`. Values through `1.0` control how much of the step snap is corrected. Values above `1.0` retain full correction and multiply the recovery duration, up to twice the configured duration at `2.0`. Changes saved through Mod Menu take effect immediately. Restart the client after editing the JSON file manually.
+
+Versionless alpha.2 configurations are migrated once to `config_version: 1`, with third-person smoothing enabled. The migrated file retains the other validated settings. A configuration from a newer unsupported version is left untouched and safe defaults are used for that launch.
 
 Valid easing values are `linear`, `smoothstep`, `smootherstep`, and `exponential`. Values are clamped to safe ranges during loading. A malformed file is not overwritten and safe defaults are used for that launch.
 
@@ -80,7 +85,7 @@ StepItUp changes the local player's effective step height before vanilla movemen
 
 An event qualifies only when a grounded, eligible player moves horizontally and the resolved vertical rise is greater than the requested vertical motion but no higher than `player.maxUpStep()` plus a small collision tolerance. Ordinary jumps and teleports do not meet those conditions.
 
-The camera correction runs at the end of Minecraft 26.2's `Camera.alignWithEntity(float)` method. Using `setPosition` keeps the camera's internal block position synchronized, and running before frustum preparation keeps rendering culling aligned with the corrected position.
+The camera correction runs in Minecraft 26.2's `Camera.alignWithEntity(float)` method after the perspective state is selected. Using `setPosition` keeps the camera's internal block position synchronized. In third person, vanilla then calculates camera distance and wall collision from the corrected pivot before frustum preparation.
 
 Direct position changes are also tracked. If the same player is corrected or teleported without passing through ordinary movement, the queued visual offset is cleared before the next camera sample.
 

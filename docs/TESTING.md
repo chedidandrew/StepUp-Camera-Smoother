@@ -24,9 +24,14 @@ Test all four combinations: without StepItUp or Mod Menu, with Mod Menu only, wi
 - Set Smoothness to 0%, select Done, and confirm eligible steps retain their original camera motion without restarting.
 - Set Smoothness to 50%, select Done, and confirm eligible steps use a visibly partial correction without restarting.
 - Set Smoothness to 100%, select Done, and confirm eligible steps receive the full default correction without restarting.
+- Set Smoothness to 150%, select Done, and confirm full correction settles over 1.5 times the base recovery duration without a downward dip.
+- Set Smoothness to 200%, select Done, and confirm full correction settles over twice the base recovery duration without a downward dip.
+- Disable and enable Third Person, select Done after each change, and verify the selected behavior applies to both rear and front views without restarting.
 - Change the slider, select Cancel, reopen the screen, and confirm the saved value did not change.
 - Change the slider, press Escape, reopen the screen, and confirm the saved value did not change.
-- Change another setting manually in JSON, restart, use Reset and Done in the screen, then confirm only `smoothing_strength` returned to `1.0`.
+- Change another setting manually in JSON, restart, use Reset and Done in the screen, then confirm `smoothing_strength` returned to `1.0`, `smooth_third_person` returned to `true`, and unexposed settings did not change.
+- Start once with a versionless alpha.2 configuration containing `smooth_third_person: false`, then confirm it is rewritten as configuration version 1 with third-person smoothing enabled and its other values preserved.
+- Start once with a configuration version greater than 1, then confirm safe defaults are active and the newer file remains byte-for-byte unchanged.
 - Make the config path temporarily unwritable in a disposable instance and confirm a failed Done operation reports the failure without losing the previous configuration.
 
 Expected result: values save atomically, apply to the next eligible step immediately, and survive a normal restart. The screen works with and without StepItUp, and no Cloth Config installation is needed unless StepItUp itself requires it.
@@ -69,10 +74,11 @@ Expected result: no old camera offset survives the state change.
 
 ## Perspectives and rendering
 
-- Test first-person with the default configuration.
-- Set `smooth_third_person` to `true`, restart, then test rear and front third-person.
+- Test first-person, rear third-person, and front third-person with the default configuration.
+- Disable `smooth_third_person`, then confirm first-person remains smooth while both third-person views retain their original motion.
 - Switch perspectives during an active transition.
 - Step beside walls, underneath low ceilings, and in tight stairwells in both third-person views.
+- Repeat the wall, ceiling, and tight-stair tests at 100%, 150%, and 200%.
 - Test at 30, 60, 120, and 144 or higher frames per second when possible.
 - Cause a temporary frame-time spike and confirm the offset still settles without overshoot or NaN movement.
 
@@ -90,7 +96,7 @@ Expected result: all perspectives remain stable. The third-person camera must no
 - Candidate jar SHA-256.
 - Minecraft, Fabric Loader, Java, StepItUp, Fabric API, and Cloth Config versions.
 - Mod Menu version and all four runtime profiles tested.
-- Smoothness results at 0%, 50%, and 100%.
+- Smoothness results at 0%, 50%, 100%, 150%, and 200%.
 - Perspectives tested.
 - Result for every group above.
 - Any screenshots, video, crash reports, and `latest.log` needed to reproduce a failure.

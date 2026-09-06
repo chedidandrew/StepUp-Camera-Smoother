@@ -23,8 +23,8 @@ class SmootherConfigTest {
     Path temporaryDirectory;
 
     @Test
-    void roundTripsZeroThirtySevenAndOneHundredPercent() throws IOException {
-        double[] strengths = {0.0D, 0.37D, 1.0D};
+    void roundTripsStrengthsThroughTwoHundredPercent() throws IOException {
+        double[] strengths = {0.0D, 0.37D, 1.0D, 1.5D, 2.0D};
 
         for (int index = 0; index < strengths.length; index++) {
             double strength = strengths[index];
@@ -57,7 +57,10 @@ class SmootherConfigTest {
                 () -> assertEquals(0.0D, defaults.withSmoothingStrength(0.0D).smoothingStrength()),
                 () -> assertEquals(0.37D, defaults.withSmoothingStrength(0.37D).smoothingStrength()),
                 () -> assertEquals(1.0D, defaults.withSmoothingStrength(1.0D).smoothingStrength()),
-                () -> assertEquals(1.0D, defaults.withSmoothingStrength(1.01D).smoothingStrength()),
+                () -> assertEquals(1.01D, defaults.withSmoothingStrength(1.01D).smoothingStrength()),
+                () -> assertEquals(1.5D, defaults.withSmoothingStrength(1.5D).smoothingStrength()),
+                () -> assertEquals(2.0D, defaults.withSmoothingStrength(2.0D).smoothingStrength()),
+                () -> assertEquals(2.0D, defaults.withSmoothingStrength(2.01D).smoothingStrength()),
                 () -> assertEquals(1.0D, defaults.withSmoothingStrength(Double.NaN).smoothingStrength()),
                 () -> assertEquals(
                         1.0D,
@@ -67,6 +70,38 @@ class SmootherConfigTest {
                         1.0D,
                         defaults.withSmoothingStrength(Double.NEGATIVE_INFINITY).smoothingStrength()
                 )
+        );
+    }
+
+    @Test
+    void defaultsEnableThirdPersonSmoothing() {
+        assertTrue(SmootherConfig.Snapshot.defaults().smoothThirdPerson());
+    }
+
+    @Test
+    void thirdPersonCopyPreservesEveryOtherField() {
+        SmootherConfig.Snapshot original = new SmootherConfig.Snapshot(
+                false,
+                731,
+                EasingCurve.EXPONENTIAL,
+                1.75D,
+                7.75D,
+                true,
+                true
+        );
+        SmootherConfig.Snapshot changed = original.withSmoothThirdPerson(false);
+
+        assertAll(
+                () -> assertEquals(original.enabled(), changed.enabled()),
+                () -> assertEquals(
+                        original.recoveryDurationMilliseconds(),
+                        changed.recoveryDurationMilliseconds()
+                ),
+                () -> assertEquals(original.easing(), changed.easing()),
+                () -> assertEquals(original.smoothingStrength(), changed.smoothingStrength()),
+                () -> assertEquals(original.maximumCameraLag(), changed.maximumCameraLag()),
+                () -> assertFalse(changed.smoothThirdPerson()),
+                () -> assertEquals(original.debugLogging(), changed.debugLogging())
         );
     }
 
@@ -141,6 +176,87 @@ class SmootherConfigTest {
 
         assertEquals(SmootherConfig.Snapshot.defaults(), SmootherConfig.get());
         assertEquals(malformed, Files.readString(configPath, StandardCharsets.UTF_8));
+    }
+
+    @Test
+    void migratesVersionlessAlphaTwoConfigToThirdPersonEnabled() throws IOException {
+        Path configPath = temporaryDirectory.resolve(SmootherConfig.FILE_NAME);
+        Files.writeString(
+                configPath,
+                """
+                {
+                  "enabled": false,
+                  "recovery_duration_ms": 731,
+                  "easing": "exponential",
+                  "smoothing_strength": 1.75,
+                  "maximum_camera_lag": 7.75,
+                  "smooth_third_person": false,
+                  "debug_logging": true
+                }
+                """,
+                StandardCharsets.UTF_8
+        );
+
+        SmootherConfig.load(configPath, LOGGER);
+
+        assertEquals(
+                new SmootherConfig.Snapshot(
+                        false,
+                        731,
+                        EasingCurve.EXPONENTIAL,
+                        1.75D,
+                        7.75D,
+                        true,
+                        true
+                ),
+                SmootherConfig.get()
+        );
+        String migrated = Files.readString(configPath, StandardCharsets.UTF_8);
+        assertTrue(migrated.contains("\"config_version\": 1"));
+        assertTrue(migrated.contains("\"recovery_duration_ms\": 731"));
+        assertTrue(migrated.contains("\"smoothing_strength\": 1.75"));
+        assertTrue(migrated.contains("\"smooth_third_person\": true"));
+    }
+
+    @Test
+    void currentConfigCanKeepThirdPersonDisabled() throws IOException {
+        Path configPath = temporaryDirectory.resolve(SmootherConfig.FILE_NAME);
+        Files.writeString(
+                configPath,
+                """
+                {
+                  "config_version": 1,
+                  "smooth_third_person": false
+                }
+                """,
+                StandardCharsets.UTF_8
+        );
+
+        SmootherConfig.load(configPath, LOGGER);
+
+        assertFalse(SmootherConfig.get().smoothThirdPerson());
+        assertTrue(Files.readString(configPath, StandardCharsets.UTF_8)
+                .contains("\"smooth_third_person\": false"));
+    }
+
+    @Test
+    void futureConfigVersionUsesDefaultsWithoutDowngradingTheFile() throws IOException {
+        Path configPath = temporaryDirectory.resolve(SmootherConfig.FILE_NAME);
+        String future = """
+                {
+                  "config_version": 2,
+                  "enabled": false,
+                  "smoothing_strength": 2.0,
+                  "smooth_third_person": false,
+                  "future_setting": "keep-me"
+                }
+                """;
+        Files.writeString(configPath, future, StandardCharsets.UTF_8);
+
+        SmootherConfig.load(configPath, LOGGER);
+
+        assertEquals(SmootherConfig.Snapshot.defaults(), SmootherConfig.get());
+        assertEquals(future, Files.readString(configPath, StandardCharsets.UTF_8));
     }
 
     @Test

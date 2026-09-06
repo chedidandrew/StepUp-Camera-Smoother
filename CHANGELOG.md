@@ -2,7 +2,36 @@
 
 All notable project changes are recorded here.
 
-## 0.1.0-alpha.2 - Unreleased
+## 0.1.0-alpha.3 - Unreleased
+
+### Added
+
+- Added first-class rear and front third-person smoothing, enabled by default.
+- Added a Mod Menu third-person toggle that is saved atomically with the Smoothness value.
+- Extended the Smoothness slider from 0% through 200% in 1% stored increments.
+- Added configuration version 1 and a one-time migration that enables third-person smoothing for versionless alpha.2 configurations.
+- Added unit coverage for 150% and 200% values, recovery scaling without vertical overshoot, the 200% safety cap, third-person defaults, toggle copying, legacy configuration migration, and future-version refusal.
+
+### Changed
+
+- Defined 101% through 200% as progressively longer recovery. With the default 180 ms base, the recovery phase lasts 270 ms at 150% and 360 ms at 200% while retaining full initial step correction.
+- Moved the camera correction earlier in `Camera.alignWithEntity(float)`, after the perspective state is selected but before vanilla calculates detached-camera distance and collision. Third-person wall collision therefore uses the smoothed camera pivot.
+- Changed Reset to restore both exposed settings: 100% Smoothness and third-person smoothing enabled.
+- Changed new configurations to use `smooth_third_person: true` and `config_version: 1`.
+- Changed the loader to reject unsupported future configuration versions without rewriting them, preventing an older build from silently discarding newer settings.
+- Bumped the project version from `0.1.0-alpha.2` to `0.1.0-alpha.3`.
+
+### Compatibility evidence
+
+- Preserved alpha.2's transition amplitude and recovery semantics exactly from 0% through 100%.
+- Kept all camera changes render-only and retained the existing StepItUp, Mod Menu, and dependency boundaries.
+- Kept a third-person off switch for compatibility testing with camera, replay, VR, shader, and perspective mods.
+
+### Release safety
+
+- Kept `release_ready=false`. GitHub Actions and the expanded manual perspective and smoothness matrix must pass on the exact candidate before a release is published.
+
+## 0.1.0-alpha.2 - 2026-09-06 (CI test build)
 
 ### Added
 

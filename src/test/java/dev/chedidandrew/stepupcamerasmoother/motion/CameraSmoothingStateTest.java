@@ -36,6 +36,29 @@ class CameraSmoothingStateTest {
     }
 
     @Test
+    void strengthAboveOneExtendsRecoveryWithoutOvershooting() {
+        CameraSmoothingState state = new CameraSmoothingState();
+        state.addStep(1.0D, 100L, 2.0D);
+
+        assertEquals(0.0D, state.sample(100.0D, 200, EasingCurve.SMOOTHERSTEP, 2.5D), 1.0E-12D);
+        assertEquals(-0.5D, state.sample(100.5D, 200, EasingCurve.SMOOTHERSTEP, 2.5D), 1.0E-12D);
+        assertEquals(-1.0D, state.sample(101.0D, 200, EasingCurve.SMOOTHERSTEP, 2.5D), 1.0E-12D);
+        assertEquals(-0.5D, state.sample(105.0D, 200, EasingCurve.SMOOTHERSTEP, 2.5D), 1.0E-12D);
+        assertEquals(0.0D, state.sample(109.0D, 200, EasingCurve.SMOOTHERSTEP, 2.5D), 1.0E-12D);
+        assertEquals(0, state.activeTransitionCount());
+    }
+
+    @Test
+    void strengthAboveMaximumIsCappedAtTwoHundredPercent() {
+        CameraSmoothingState state = new CameraSmoothingState();
+        state.addStep(1.0D, 10L, 10.0D);
+
+        assertEquals(-1.0D, state.sample(11.0D, 200, EasingCurve.LINEAR, 2.5D), 1.0E-12D);
+        assertEquals(-0.5D, state.sample(15.0D, 200, EasingCurve.LINEAR, 2.5D), 1.0E-12D);
+        assertEquals(0.0D, state.sample(19.0D, 200, EasingCurve.LINEAR, 2.5D), 1.0E-12D);
+    }
+
+    @Test
     void zeroStrengthLeavesTheOriginalCameraMotion() {
         CameraSmoothingState state = new CameraSmoothingState();
         state.addStep(1.0D, 10L, 0.0D);

@@ -1,8 +1,11 @@
 {
   "stepup_camera_smoother.config.title": "StepUp Camera Smoother",
   "stepup_camera_smoother.config.smoothness": "Smoothness: %s%%",
-  "stepup_camera_smoother.config.description": "Controls how much of each upward camera snap is smoothed.",
-  "stepup_camera_smoother.config.description_range": "0% keeps the original motion. 100% applies full smoothing.",
+  "stepup_camera_smoother.config.description": "Smooths upward steps in first-person and third-person views.",
+  "stepup_camera_smoother.config.description_range": "Above 100% extends recovery time, up to 2x at 200%.",
+  "stepup_camera_smoother.config.third_person": "Third Person: %s",
+  "stepup_camera_smoother.config.on": "On",
+  "stepup_camera_smoother.config.off": "Off",
   "stepup_camera_smoother.config.reset": "Reset",
   "stepup_camera_smoother.config.cancel": "Cancel",
   "stepup_camera_smoother.config.done": "Done",

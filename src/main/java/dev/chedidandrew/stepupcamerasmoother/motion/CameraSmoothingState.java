@@ -6,10 +6,12 @@ import java.util.Deque;
 /**
  * Holds short-lived visual transitions. Game state is never changed by this
  * class. A transition first cancels vanilla's one-tick position interpolation,
- * then eases the camera offset back to zero.
+ * then eases the camera offset back to zero. Strength above one extends the
+ * recovery instead of increasing the inverse offset beyond the step height.
  */
 public final class CameraSmoothingState {
     private static final int MAXIMUM_TRANSITIONS = 32;
+    private static final double MAXIMUM_STRENGTH = 2.0D;
     private static final double TICK_MILLISECONDS = 50.0D;
     private static final double TIME_EPSILON = 1.0E-6D;
 
@@ -22,8 +24,10 @@ public final class CameraSmoothingState {
             return;
         }
 
-        double compensatedHeight = height * Math.min(strength, 1.0D);
-        transitions.addLast(new Transition(compensatedHeight, startTick));
+        double clampedStrength = Math.min(strength, MAXIMUM_STRENGTH);
+        double compensatedHeight = height * Math.min(clampedStrength, 1.0D);
+        double recoveryMultiplier = Math.max(clampedStrength, 1.0D);
+        transitions.addLast(new Transition(compensatedHeight, startTick, recoveryMultiplier));
         while (transitions.size() > MAXIMUM_TRANSITIONS) {
             transitions.removeFirst();
         }
@@ -57,8 +61,7 @@ public final class CameraSmoothingState {
         lastSampleTime = gameTimeTicks;
 
         double recoveryTicks = recoveryDurationMilliseconds / TICK_MILLISECONDS;
-        double finishedAge = 1.0D + recoveryTicks;
-        transitions.removeIf(transition -> gameTimeTicks - transition.startTick() >= finishedAge);
+        transitions.removeIf(transition -> transition.isFinished(gameTimeTicks, recoveryTicks));
 
         double offset = 0.0D;
         for (Transition transition : transitions) {
@@ -82,8 +85,16 @@ public final class CameraSmoothingState {
         return transitions.size();
     }
 
-    private record Transition(double height, long startTick) {
-        private double offsetAt(double gameTimeTicks, double recoveryTicks, EasingCurve easing) {
+    private record Transition(double height, long startTick, double recoveryMultiplier) {
+        private boolean isFinished(double gameTimeTicks, double baseRecoveryTicks) {
+            return gameTimeTicks - startTick >= 1.0D + effectiveRecoveryTicks(baseRecoveryTicks);
+        }
+
+        private double offsetAt(
+                double gameTimeTicks,
+                double baseRecoveryTicks,
+                EasingCurve easing
+        ) {
             double age = gameTimeTicks - startTick;
             if (age <= 0.0D) {
                 return 0.0D;
@@ -95,12 +106,16 @@ public final class CameraSmoothingState {
                 return -height * age;
             }
 
-            double recoveryProgress = (age - 1.0D) / recoveryTicks;
+            double recoveryProgress = (age - 1.0D) / effectiveRecoveryTicks(baseRecoveryTicks);
             if (recoveryProgress >= 1.0D) {
                 return 0.0D;
             }
 
             return -height * (1.0D - easing.apply(recoveryProgress));
+        }
+
+        private double effectiveRecoveryTicks(double baseRecoveryTicks) {
+            return baseRecoveryTicks * recoveryMultiplier;
         }
     }
 }
