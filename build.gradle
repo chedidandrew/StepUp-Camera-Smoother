@@ -102,6 +102,7 @@ dependencies {
     // These profiles are only for local and CI compatibility smoke tests. None
     // of these jars are bundled in this mod's distributable jar.
     if (includeStepItUpRuntime || includeModMenuRuntime) {
+        clientCompileOnly "net.fabricmc.fabric-api:fabric-api:${fabricApiVersionValue}"
         localRuntime "net.fabricmc.fabric-api:fabric-api:${fabricApiVersionValue}"
     }
 

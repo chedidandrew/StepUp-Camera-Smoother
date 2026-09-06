@@ -32,6 +32,11 @@ All notable project changes are recorded here.
 
 - Kept `release_ready=false`. GitHub Actions and the complete manual test matrix still must pass on the exact candidate before a release is published.
 
+### Fixed
+
+- Added Fabric API to the compile-only classpath of opt-in client fixture profiles. Their access wideners expose Fabric lifecycle types in transformed Minecraft classes during recompilation, while the production jar and published runtime dependencies remain unchanged.
+- Ordered client profiles as standalone, Mod Menu only, StepItUp only, and combined so each optional integration is independently tested before the strict combined gate.
+
 ## 0.1.0-alpha.1 - 2026-09-06 (CI test build)
 
 ### Added

@@ -56,6 +56,8 @@ The StepItUp profiles resolve StepItUp and Cloth Config from immutable Modrinth 
 
 Minecraft 26.2 uses official unobfuscated names, so Loom exposes these opt-in development fixtures through its `localRuntime` configuration. They are not declared during a normal build and are not exposed as published dependencies.
 
+The opt-in profiles also place Fabric API on their compile-only classpath. Runtime fixture access wideners can expose Fabric lifecycle types in transformed Minecraft class signatures when Gradle recompiles client sources. This compile-only input prevents a missing-type error without adding a production dependency or bundling Fabric API.
+
 Mod Menu's API is present only at compile time for the isolated optional entrypoint. The ordinary client initializer has no Mod Menu link, so the standalone profile also proves that the jar starts without it.
 
 ## Release process
