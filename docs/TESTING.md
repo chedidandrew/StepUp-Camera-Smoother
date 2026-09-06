@@ -1,0 +1,77 @@
+# Testing
+
+Automated client boot tests verify that Fabric loads the project, both mixin targets transform, the title screen starts, and the exact StepItUp fixture can coexist. They do not judge camera feel. Complete this manual matrix on the exact final candidate commit after `release_ready=true` has been committed and its build has passed. Do not create another commit between testing and tagging.
+
+## Required setup
+
+- Minecraft 26.2
+- Java 25
+- Fabric Loader 0.19.5 or newer compatible 26.2 build
+- Candidate StepUp Camera Smoother jar
+- StepItUp 3.0-26.2 Fabric
+- StepItUp's required Fabric API and Cloth Config versions
+- A new test world with cheats enabled
+
+Test once with StepItUp present and once without it.
+
+## Core movement
+
+- Walk, sprint, strafe, and walk backward over slabs.
+- Walk and sprint over straight, corner, and alternating stairs.
+- Cross carpets, paths, snow layers, and other layered collision shapes.
+- With StepItUp enabled, walk onto full blocks and confirm the entire rise is smoothed.
+- Traverse several consecutive full-block steps without a camera snap or unbounded lag.
+- Repeat while crouching with StepItUp's sneaking option both disabled and enabled.
+
+Expected result: the camera stays visually continuous, then settles cleanly at the new height. Player collision, reach, targeting, and movement speed remain vanilla or StepItUp-controlled.
+
+## False-positive rejection
+
+- Jump normally while still and while sprinting.
+- Jump into the edge of a block.
+- Fall from short and tall ledges.
+- Receive knockback and upward impulses.
+- Stand on or near piston and shulker movement.
+- Climb ladders, vines, and scaffolding.
+- Swim, leave water, and move through lava in a controlled creative test.
+- Fly in creative mode and glide with elytra.
+
+Expected result: none of these motions gets an artificial step-camera correction.
+
+## Context resets
+
+- Enter and leave boats, minecarts, and rideable mobs.
+- Sleep and wake.
+- Die and respawn.
+- Teleport short and long distances.
+- travel through Nether and End portals.
+- Enter spectator mode and spectate another entity.
+- Disconnect and join another world or server while a transition is active.
+
+Expected result: no old camera offset survives the state change.
+
+## Perspectives and rendering
+
+- Test first-person with the default configuration.
+- Set `smooth_third_person` to `true`, restart, then test rear and front third-person.
+- Switch perspectives during an active transition.
+- Step beside walls, underneath low ceilings, and in tight stairwells in both third-person views.
+- Test at 30, 60, 120, and 144 or higher frames per second when possible.
+- Cause a temporary frame-time spike and confirm the offset still settles without overshoot or NaN movement.
+
+Expected result: all perspectives remain stable. The third-person camera must not enter terrain or reveal a new collision regression.
+
+## Compatibility pass
+
+- Run with the intended production mod set, especially camera, perspective, replay, VR, shader, and rendering mods.
+- Do not install another step camera smoothing mod during this pass.
+- Review `logs/latest.log` for `MixinApplyError`, `InvalidMixinException`, exceptions from `stepup_camera_smoother`, or repeated debug messages.
+
+## Evidence to record
+
+- Full 40-character Git commit SHA.
+- Candidate jar SHA-256.
+- Minecraft, Fabric Loader, Java, StepItUp, Fabric API, and Cloth Config versions.
+- Perspectives tested.
+- Result for every group above.
+- Any screenshots, video, crash reports, and `latest.log` needed to reproduce a failure.

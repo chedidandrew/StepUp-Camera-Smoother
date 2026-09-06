@@ -1,0 +1,33 @@
+{
+  "schemaVersion": 1,
+  "id": "stepup_camera_smoother",
+  "version": "${version}",
+  "name": "StepUp Camera Smoother",
+  "description": "Smooths the client camera when collision movement steps the player upward.",
+  "authors": [
+    "Andrew Chedid"
+  ],
+  "contact": {
+    "homepage": "https://github.com/chedidandrew/StepUp-Camera-Smoother",
+    "sources": "https://github.com/chedidandrew/StepUp-Camera-Smoother",
+    "issues": "https://github.com/chedidandrew/StepUp-Camera-Smoother/issues"
+  },
+  "license": "MIT",
+  "environment": "client",
+  "entrypoints": {
+    "client": [
+      "dev.chedidandrew.stepupcamerasmoother.client.StepUpCameraSmootherClient"
+    ]
+  },
+  "mixins": [
+    "stepup_camera_smoother.client.mixins.json"
+  ],
+  "depends": {
+    "fabricloader": ">=${minimum_loader_version}",
+    "minecraft": ">=${minecraft_version} <26.3",
+    "java": ">=25"
+  },
+  "suggests": {
+    "stepitup": "*"
+  }
+}
