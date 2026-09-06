@@ -38,6 +38,10 @@ All notable project changes are recorded here.
 - Kept `release_ready=false` throughout development. The documented release process changes it only in a final candidate commit, then builds and manually tests that exact commit before tagging.
 - Required manual release inputs to equal the selected tag's full 40-character commit SHA and the rebuilt jar's SHA-256.
 
+### Fixed
+
+- Changed the opt-in StepItUp test fixtures from Loom's mapped `modLocalRuntime` configuration to the `localRuntime` configuration exposed by Minecraft 26.2's unobfuscated development environment.
+
 ### Known scope
 
 - This alpha smooths upward collision steps only. Ordinary descents and falls clear any queued offset and otherwise remain visually unchanged.

@@ -84,9 +84,9 @@ dependencies {
     // This profile is only for local and CI compatibility smoke tests. None of
     // these jars are bundled in this mod's distributable jar.
     if (providers.gradleProperty('include_stepitup_runtime').map { it.toBoolean() }.getOrElse(false)) {
-        modLocalRuntime "net.fabricmc.fabric-api:fabric-api:${fabricApiVersionValue}"
-        modLocalRuntime "maven.modrinth:9ggA4qiy:${providers.gradleProperty('stepitup_version_id').get()}"
-        modLocalRuntime "maven.modrinth:9s6osm5g:${providers.gradleProperty('cloth_config_version_id').get()}"
+        localRuntime "net.fabricmc.fabric-api:fabric-api:${fabricApiVersionValue}"
+        localRuntime "maven.modrinth:9ggA4qiy:${providers.gradleProperty('stepitup_version_id').get()}"
+        localRuntime "maven.modrinth:9s6osm5g:${providers.gradleProperty('cloth_config_version_id').get()}"
     }
 }
 

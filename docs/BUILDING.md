@@ -34,6 +34,8 @@ STEPUP_CAMERA_SMOOTHER_EXPECT_STEPITUP=true \
 
 The second command resolves StepItUp and Cloth Config from immutable Modrinth version IDs. Those dependencies are local-runtime only and are excluded from the built jar.
 
+Minecraft 26.2 uses official unobfuscated names, so Loom exposes these opt-in development fixtures through its `localRuntime` configuration. They are not declared during a normal build and are not exposed as published dependencies.
+
 ## Release process
 
 1. Finish the code, tests, `CHANGELOG.md`, and `RELEASE_NOTES.md`.
