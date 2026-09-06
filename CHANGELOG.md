@@ -2,7 +2,37 @@
 
 All notable project changes are recorded here.
 
-## 0.1.0-alpha.1 - Unreleased
+## 0.1.0-alpha.2 - Unreleased
+
+### Added
+
+- Added an optional Mod Menu 20.0.1 entrypoint and a native Minecraft configuration screen.
+- Added a 0% to 100% Smoothness slider over the existing `smoothing_strength` JSON setting.
+- Added persistent, atomic configuration saves from the screen. Selecting Done applies the new strength immediately and clears the active transition so the next eligible step uses it.
+- Added Reset, Cancel, and Done controls. Reset changes only the exposed smoothness draft, while Cancel and Escape discard unsaved screen changes.
+- Added English configuration-screen translations.
+- Added tests for smoothness updates, bounds, defaults, and invalid numeric input.
+- Added reflective client checks that instantiate the optional Mod Menu entrypoint, create and open its configuration screen, then restore the parent screen.
+- Added standalone, Mod Menu-only, StepItUp-only, and combined StepItUp plus Mod Menu client boot profiles.
+- Extended the fail-closed jar audit to verify the optional entrypoint, exact translation keys, dependency metadata, and exclusion of Mod Menu, Fabric API, Cloth Config, Auto Config, and Text Placeholder API classes.
+
+### Changed
+
+- Bumped the project version from `0.1.0-alpha.1` to `0.1.0-alpha.2`.
+- Expanded the build, compatibility, design, testing, and release documentation for the optional configuration screen.
+
+### Compatibility evidence
+
+- Kept Mod Menu as an optional integration suggested in metadata rather than a required dependency.
+- Compiled against Mod Menu 20.0.1 without bundling its API or jar.
+- Confirmed that the ordinary client initializer does not link to Mod Menu classes, allowing the same jar to start without Mod Menu installed.
+- Kept Cloth Config outside this mod's dependencies. Cloth Config appears only as part of the optional StepItUp compatibility fixture.
+
+### Release safety
+
+- Kept `release_ready=false`. GitHub Actions and the complete manual test matrix still must pass on the exact candidate before a release is published.
+
+## 0.1.0-alpha.1 - 2026-09-06 (CI test build)
 
 ### Added
 

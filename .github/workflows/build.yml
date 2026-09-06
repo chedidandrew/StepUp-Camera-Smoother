@@ -43,15 +43,33 @@ jobs:
       - name: Audit playable jar
         run: python3 scripts/audit_jar.py
 
-      - name: Run standalone client boot test
+      - name: Run bare client boot test
         run: xvfb-run -a ./gradlew --no-daemon runClientGameTest
 
-      - name: Run StepItUp compatibility client boot test
+      - name: Run StepItUp-only client boot test
         env:
           STEPUP_CAMERA_SMOOTHER_EXPECT_STEPITUP: 'true'
         run: |
           xvfb-run -a ./gradlew --no-daemon \
             -Pinclude_stepitup_runtime=true \
+            runClientGameTest
+
+      - name: Run Mod Menu-only client boot test
+        env:
+          STEPUP_CAMERA_SMOOTHER_EXPECT_MODMENU: 'true'
+        run: |
+          xvfb-run -a ./gradlew --no-daemon \
+            -Pinclude_modmenu_runtime=true \
+            runClientGameTest
+
+      - name: Run StepItUp and Mod Menu client boot test
+        env:
+          STEPUP_CAMERA_SMOOTHER_EXPECT_STEPITUP: 'true'
+          STEPUP_CAMERA_SMOOTHER_EXPECT_MODMENU: 'true'
+        run: |
+          xvfb-run -a ./gradlew --no-daemon \
+            -Pinclude_stepitup_runtime=true \
+            -Pinclude_modmenu_runtime=true \
             runClientGameTest
 
       - name: Create source snapshot

@@ -66,6 +66,14 @@ Direct field writes and camera-local `move` calls are deliberately avoided.
 
 The smoothing queue is cleared if the player or level instance changes, time moves backward, the camera focuses another entity, smoothing is disabled, the player leaves the ground, the player enters an excluded movement state, or the camera enters third person while third-person smoothing is disabled. The last resolved position is also compared before movement and camera sampling, so a same-player direct position correction or teleport clears the queue. This prevents a stale offset from surviving falls, respawn, dimension travel, spectator camera changes, mounts, unsupported perspective switches, or other discontinuities.
 
+## Configuration screen
+
+The optional Mod Menu screen exposes only `smoothing_strength` as a 0% to 100% Smoothness slider. Zero leaves the original upward camera motion unchanged, 50% applies half of the visual correction, and 100% applies the full correction. The default is 100%.
+
+The screen edits a draft value. Cancel and Escape discard that draft. Reset changes the draft smoothness to its default without replacing recovery duration, easing, maximum lag, third-person behavior, or debug settings. Done writes a complete sanitized configuration through an atomic file replacement, publishes the new in-memory snapshot only after the write succeeds, and clears the active camera transition. The next eligible step therefore uses the new value immediately. A failed write leaves both the previous file and active configuration unchanged.
+
 ## Dependency boundary
 
 The production jar has no compile-time or runtime link to StepItUp. Interoperability occurs only through vanilla movement and `maxUpStep()`. The optional StepItUp, Fabric API, and Cloth Config dependencies in Gradle are local-runtime fixtures for the compatibility client test and are never bundled.
+
+Mod Menu is also optional. One isolated Fabric `modmenu` entrypoint implements its API, while the ordinary client entrypoint and smoothing code do not refer to Mod Menu classes. Fabric loads the integration class only when Mod Menu is installed. The API is compile-only, Mod Menu is a metadata suggestion, and no Mod Menu or Cloth Config code is packaged in this mod.

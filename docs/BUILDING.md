@@ -19,22 +19,44 @@ The playable jar is created under `build/libs`. The audit writes its SHA-256 fil
 
 ## Client tests
 
-Standalone:
+The client tests cover four runtime profiles. Optional fixtures are enabled only for the command that needs them.
+
+Standalone, without Mod Menu or StepItUp:
 
 ```bash
 ./gradlew --no-daemon runClientGameTest
 ```
 
-With the exact StepItUp compatibility fixture:
+Mod Menu 20.0.1 only:
+
+```bash
+STEPUP_CAMERA_SMOOTHER_EXPECT_MODMENU=true \
+./gradlew --no-daemon -Pinclude_modmenu_runtime=true runClientGameTest
+```
+
+The exact StepItUp compatibility fixture only:
 
 ```bash
 STEPUP_CAMERA_SMOOTHER_EXPECT_STEPITUP=true \
 ./gradlew --no-daemon -Pinclude_stepitup_runtime=true runClientGameTest
 ```
 
-The second command resolves StepItUp and Cloth Config from immutable Modrinth version IDs. Those dependencies are local-runtime only and are excluded from the built jar.
+StepItUp and Mod Menu together:
+
+```bash
+STEPUP_CAMERA_SMOOTHER_EXPECT_STEPITUP=true \
+STEPUP_CAMERA_SMOOTHER_EXPECT_MODMENU=true \
+./gradlew --no-daemon \
+  -Pinclude_stepitup_runtime=true \
+  -Pinclude_modmenu_runtime=true \
+  runClientGameTest
+```
+
+The StepItUp profiles resolve StepItUp and Cloth Config from immutable Modrinth version IDs. The Mod Menu profiles resolve immutable Modrinth versions of Mod Menu 20.0.1 and its required Text Placeholder API, while Fabric API is already part of the test runtime. These dependencies are local-runtime test fixtures and are excluded from the built jar. StepUp Camera Smoother itself does not depend on Cloth Config, Fabric API, or Text Placeholder API.
 
 Minecraft 26.2 uses official unobfuscated names, so Loom exposes these opt-in development fixtures through its `localRuntime` configuration. They are not declared during a normal build and are not exposed as published dependencies.
+
+Mod Menu's API is present only at compile time for the isolated optional entrypoint. The ordinary client initializer has no Mod Menu link, so the standalone profile also proves that the jar starts without it.
 
 ## Release process
 
@@ -46,4 +68,4 @@ Minecraft 26.2 uses official unobfuscated names, so Loom exposes these opt-in de
 6. Tag that same commit as `v<mod_version>`.
 7. Dispatch `Publish tested release` on that tag and enter both recorded values.
 
-The release workflow rebuilds, repeats unit tests and both client boot profiles, audits the jar, compares the rebuilt jar with the manually tested SHA-256, writes provenance evidence, and then creates the GitHub release. Any mismatch fails closed.
+The release workflow rebuilds, repeats unit tests and all four client boot profiles, audits the jar, compares the rebuilt jar with the manually tested SHA-256, writes provenance evidence, and then creates the GitHub release. Any mismatch fails closed.

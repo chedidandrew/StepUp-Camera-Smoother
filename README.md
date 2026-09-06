@@ -2,7 +2,7 @@
 
 StepUp Camera Smoother is a client-only Fabric mod for Minecraft Java Edition 26.2. It softens the camera movement caused when collision handling steps the player onto a higher surface.
 
-The first alpha is designed around [StepItUp 3.0](https://modrinth.com/mod/stepitup/version/3.0-26.2-fabric), including its 1.25-block step height, while remaining useful for vanilla stairs, slabs, snow layers, and other mods that change the effective step height.
+This alpha line is designed around [StepItUp 3.0](https://modrinth.com/mod/stepitup/version/3.0-26.2-fabric), including its 1.25-block step height, while remaining useful for vanilla stairs, slabs, snow layers, and other mods that change the effective step height.
 
 > Status: source-complete alpha. GitHub Actions must pass and the built jar must be tested in Minecraft before a GitHub release is allowed. `release_ready=false` intentionally blocks release publication today.
 
@@ -14,7 +14,7 @@ The first alpha is designed around [StepItUp 3.0](https://modrinth.com/mod/stepi
 - Handles consecutive steps by adding short-lived transitions with a bounded total lag.
 - Supports first-person by default, with opt-in rear and front third-person smoothing for testing.
 - Resets immediately for jumps, swimming, ladders, flight, elytra, vehicles, spectator mode, death, respawn, world changes, and non-player movement sources.
-- Requires no configuration library, Architectury API, or direct StepItUp dependency.
+- Requires no configuration library, Architectury API, or direct StepItUp dependency. Mod Menu support is optional.
 
 This project is a distinct clean implementation. It does not contain code, assets, or binaries from StepItUp or Countered's Smooth Steps.
 
@@ -26,7 +26,9 @@ This project is a distinct clean implementation. It does not contain code, asset
 | Fabric Loader | 0.19.5 or newer within the 26.2 line | Required and tested |
 | Java | 25 or newer | Required |
 | StepItUp | 3.0-26.2 Fabric | Optional, primary compatibility target |
-| Fabric API | 0.159.0+26.2 | Only used by the development client test |
+| Mod Menu | 20.0.1 | Optional configuration screen |
+| Fabric API | 0.159.0+26.2 | Development test fixture plus StepItUp and Mod Menu dependency |
+| Text Placeholder API | 3.1.0-beta.1+26.2 | Mod Menu dependency |
 
 Do not install another camera step-smoothing mod at the same time. Two mods applying the same visual correction can overcompensate.
 
@@ -36,12 +38,23 @@ See [Compatibility](docs/COMPATIBILITY.md) for the exact fixture and known bound
 
 1. Install Fabric Loader for Minecraft 26.2.
 2. Put the verified `stepup-camera-smoother-<version>.jar` in the instance `mods` folder.
-3. Optionally install StepItUp, Fabric API, and Cloth Config if you want StepItUp's full-block stepping feature.
-4. Start Minecraft once to create `config/stepup-camera-smoother.json`.
+3. Optionally install Mod Menu 20.0.1, Fabric API, and Text Placeholder API to configure smoothness in game. A dependency-aware launcher normally installs the latter two automatically.
+4. Optionally install StepItUp, Fabric API, and Cloth Config if you want StepItUp's full-block stepping feature. Fabric API and Cloth Config are dependencies of StepItUp, not StepUp Camera Smoother.
+5. Start Minecraft once to create `config/stepup-camera-smoother.json`.
 
 Until the first release is manually approved, test jars are available only as artifacts from a successful `Build and verify` GitHub Actions run.
 
 ## Configuration
+
+With Mod Menu installed, open **Mods**, select **StepUp Camera Smoother**, and open its configuration screen. The **Smoothness** slider ranges from 0% to 100%:
+
+- 0% leaves the original upward camera motion unchanged.
+- 50% smooths half of each upward camera snap.
+- 100% applies full smoothing and is the default.
+
+Select **Done** to save and apply the value immediately. The current camera transition is cleared so the next eligible step uses the new setting. **Cancel** or Escape discards changes made on the screen. **Reset** returns the slider to its 100% default without changing the other JSON settings.
+
+Mod Menu is an optional integration, not a dependency required to start or use the mod. StepUp Camera Smoother does not use Cloth Config.
 
 The generated file is `config/stepup-camera-smoother.json`:
 
@@ -57,7 +70,7 @@ The generated file is `config/stepup-camera-smoother.json`:
 }
 ```
 
-Restart the client after editing it.
+The GUI slider stores `smoothing_strength` as a value from `0.0` to `1.0`. Changes saved through Mod Menu take effect immediately. Restart the client after editing the JSON file manually.
 
 Valid easing values are `linear`, `smoothstep`, `smootherstep`, and `exponential`. Values are clamped to safe ranges during loading. A malformed file is not overwritten and safe defaults are used for that launch.
 
@@ -80,7 +93,7 @@ The full design and invariants are in [Design](docs/DESIGN.md).
 python3 scripts/audit_jar.py
 ```
 
-The authoritative build runs on GitHub Actions with Java 25 and Gradle 9.5.1. It performs unit tests, a fail-closed jar audit, and real client boot tests both standalone and with the exact StepItUp compatibility fixture.
+The authoritative build runs on GitHub Actions with Java 25 and Gradle 9.5.1. It performs unit tests, a fail-closed jar audit, and real client boot tests in four profiles: standalone, Mod Menu only, StepItUp only, and StepItUp plus Mod Menu.
 
 For the full process, see [Building](docs/BUILDING.md) and [Testing](docs/TESTING.md).
 

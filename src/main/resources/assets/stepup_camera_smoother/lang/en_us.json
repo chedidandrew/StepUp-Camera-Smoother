@@ -1,0 +1,10 @@
+{
+  "stepup_camera_smoother.config.title": "StepUp Camera Smoother",
+  "stepup_camera_smoother.config.smoothness": "Smoothness: %s%%",
+  "stepup_camera_smoother.config.description": "Controls how much of each upward camera snap is smoothed.",
+  "stepup_camera_smoother.config.description_range": "0% keeps the original motion. 100% applies full smoothing.",
+  "stepup_camera_smoother.config.reset": "Reset",
+  "stepup_camera_smoother.config.cancel": "Cancel",
+  "stepup_camera_smoother.config.done": "Done",
+  "stepup_camera_smoother.config.save_failed": "Could not save the configuration. Check the log for details."
+}

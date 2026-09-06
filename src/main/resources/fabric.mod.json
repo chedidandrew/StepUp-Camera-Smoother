@@ -17,6 +17,9 @@
   "entrypoints": {
     "client": [
       "dev.chedidandrew.stepupcamerasmoother.client.StepUpCameraSmootherClient"
+    ],
+    "modmenu": [
+      "dev.chedidandrew.stepupcamerasmoother.client.StepUpCameraSmootherModMenu"
     ]
   },
   "mixins": [
@@ -28,6 +31,7 @@
     "java": ">=25"
   },
   "suggests": {
-    "stepitup": "*"
+    "stepitup": "*",
+    "modmenu": ">=${modmenu_version}"
   }
 }

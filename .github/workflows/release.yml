@@ -75,15 +75,35 @@ jobs:
         run: |
           chmod +x ./gradlew
           ./gradlew --no-daemon clean test build
-          xvfb-run -a ./gradlew --no-daemon runClientGameTest
           python3 scripts/audit_jar.py
 
-      - name: Run StepItUp compatibility client test
+      - name: Run bare client boot test
+        run: xvfb-run -a ./gradlew --no-daemon runClientGameTest
+
+      - name: Run StepItUp-only client boot test
         env:
           STEPUP_CAMERA_SMOOTHER_EXPECT_STEPITUP: 'true'
         run: |
           xvfb-run -a ./gradlew --no-daemon \
             -Pinclude_stepitup_runtime=true \
+            runClientGameTest
+
+      - name: Run Mod Menu-only client boot test
+        env:
+          STEPUP_CAMERA_SMOOTHER_EXPECT_MODMENU: 'true'
+        run: |
+          xvfb-run -a ./gradlew --no-daemon \
+            -Pinclude_modmenu_runtime=true \
+            runClientGameTest
+
+      - name: Run StepItUp and Mod Menu client boot test
+        env:
+          STEPUP_CAMERA_SMOOTHER_EXPECT_STEPITUP: 'true'
+          STEPUP_CAMERA_SMOOTHER_EXPECT_MODMENU: 'true'
+        run: |
+          xvfb-run -a ./gradlew --no-daemon \
+            -Pinclude_stepitup_runtime=true \
+            -Pinclude_modmenu_runtime=true \
             runClientGameTest
 
       - name: Match the manually tested jar

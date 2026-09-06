@@ -1,6 +1,6 @@
 # Testing
 
-Automated client boot tests verify that Fabric loads the project, both mixin targets transform, the title screen starts, and the exact StepItUp fixture can coexist. They do not judge camera feel. Complete this manual matrix on the exact final candidate commit after `release_ready=true` has been committed and its build has passed. Do not create another commit between testing and tagging.
+Automated client boot tests verify that Fabric loads the project, both mixin targets transform, the title screen starts, the optional Mod Menu entrypoint creates its configuration screen, and the exact StepItUp fixture can coexist. CI runs four profiles: standalone, Mod Menu only, StepItUp only, and StepItUp plus Mod Menu. These tests do not judge camera feel. Complete this manual matrix on the exact final candidate commit after `release_ready=true` has been committed and its build has passed. Do not create another commit between testing and tagging.
 
 ## Required setup
 
@@ -10,9 +10,26 @@ Automated client boot tests verify that Fabric loads the project, both mixin tar
 - Candidate StepUp Camera Smoother jar
 - StepItUp 3.0-26.2 Fabric
 - StepItUp's required Fabric API and Cloth Config versions
+- Mod Menu 20.0.1
+- Mod Menu's required Fabric API and Text Placeholder API versions
 - A new test world with cheats enabled
 
-Test once with StepItUp present and once without it.
+Test all four combinations: without StepItUp or Mod Menu, with Mod Menu only, with StepItUp only, and with both StepItUp and Mod Menu. Cloth Config is part of the StepItUp setup only and is not required by StepUp Camera Smoother.
+
+## Configuration screen
+
+- In each profile, confirm the game reaches the title screen without missing-dependency or entrypoint errors.
+- With Mod Menu absent, confirm StepUp Camera Smoother still loads and smooths eligible steps.
+- With Mod Menu present, open Mods, select StepUp Camera Smoother, and open its configuration screen.
+- Set Smoothness to 0%, select Done, and confirm eligible steps retain their original camera motion without restarting.
+- Set Smoothness to 50%, select Done, and confirm eligible steps use a visibly partial correction without restarting.
+- Set Smoothness to 100%, select Done, and confirm eligible steps receive the full default correction without restarting.
+- Change the slider, select Cancel, reopen the screen, and confirm the saved value did not change.
+- Change the slider, press Escape, reopen the screen, and confirm the saved value did not change.
+- Change another setting manually in JSON, restart, use Reset and Done in the screen, then confirm only `smoothing_strength` returned to `1.0`.
+- Make the config path temporarily unwritable in a disposable instance and confirm a failed Done operation reports the failure without losing the previous configuration.
+
+Expected result: values save atomically, apply to the next eligible step immediately, and survive a normal restart. The screen works with and without StepItUp, and no Cloth Config installation is needed unless StepItUp itself requires it.
 
 ## Core movement
 
@@ -72,6 +89,8 @@ Expected result: all perspectives remain stable. The third-person camera must no
 - Full 40-character Git commit SHA.
 - Candidate jar SHA-256.
 - Minecraft, Fabric Loader, Java, StepItUp, Fabric API, and Cloth Config versions.
+- Mod Menu version and all four runtime profiles tested.
+- Smoothness results at 0%, 50%, and 100%.
 - Perspectives tested.
 - Result for every group above.
 - Any screenshots, video, crash reports, and `latest.log` needed to reproduce a failure.

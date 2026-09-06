@@ -17,7 +17,31 @@ EXPECTED_MOD_ID = "stepup_camera_smoother"
 EXPECTED_CLIENT_ENTRYPOINT = (
     "dev.chedidandrew.stepupcamerasmoother.client.StepUpCameraSmootherClient"
 )
+EXPECTED_MODMENU_ENTRYPOINT = (
+    "dev.chedidandrew.stepupcamerasmoother.client.StepUpCameraSmootherModMenu"
+)
 EXPECTED_CLASS_MAJOR = 69
+REQUIRED_CONFIG_FILES = {
+    "assets/stepup_camera_smoother/lang/en_us.json",
+    (
+        "dev/chedidandrew/stepupcamerasmoother/client/"
+        "StepUpCameraSmootherModMenu.class"
+    ),
+    (
+        "dev/chedidandrew/stepupcamerasmoother/client/config/"
+        "SmootherConfigScreen.class"
+    ),
+}
+EXPECTED_TRANSLATION_KEYS = {
+    "stepup_camera_smoother.config.title",
+    "stepup_camera_smoother.config.smoothness",
+    "stepup_camera_smoother.config.description",
+    "stepup_camera_smoother.config.description_range",
+    "stepup_camera_smoother.config.reset",
+    "stepup_camera_smoother.config.cancel",
+    "stepup_camera_smoother.config.done",
+    "stepup_camera_smoother.config.save_failed",
+}
 
 
 def fail(message: str) -> None:
@@ -69,21 +93,40 @@ def audit_metadata(archive: zipfile.ZipFile, names: set[str]) -> None:
     if "${" in str(metadata):
         fail("Unexpanded Gradle placeholder found in fabric.mod.json")
 
-    client_entrypoints = metadata.get("entrypoints", {}).get("client", [])
+    entrypoints = metadata.get("entrypoints", {})
+    client_entrypoints = entrypoints.get("client", [])
     if client_entrypoints != [EXPECTED_CLIENT_ENTRYPOINT]:
         fail(f"Unexpected client entrypoints: {client_entrypoints}")
-    if set(metadata.get("entrypoints", {})) != {"client"}:
-        fail("The jar must not declare common or server entrypoints")
+    modmenu_entrypoints = entrypoints.get("modmenu", [])
+    if modmenu_entrypoints != [EXPECTED_MODMENU_ENTRYPOINT]:
+        fail(f"Unexpected Mod Menu entrypoints: {modmenu_entrypoints}")
+    if set(entrypoints) != {"client", "modmenu"}:
+        fail(f"Unexpected entrypoint keys: {set(entrypoints)}")
 
     dependencies = metadata.get("depends", {})
+    expected_dependency_keys = {"fabricloader", "minecraft", "java"}
+    if set(dependencies) != expected_dependency_keys:
+        fail(f"Unexpected required dependency keys: {set(dependencies)}")
     if dependencies.get("minecraft") != ">=26.2 <26.3":
         fail(f"Unexpected Minecraft range: {dependencies.get('minecraft')}")
     if dependencies.get("fabricloader") != ">=0.19.5":
         fail(f"Unexpected Fabric Loader range: {dependencies.get('fabricloader')}")
     if dependencies.get("java") != ">=25":
         fail(f"Unexpected Java requirement: {dependencies.get('java')}")
-    if metadata.get("suggests", {}).get("stepitup") != "*":
+    suggestions = metadata.get("suggests", {})
+    if set(suggestions) != {"stepitup", "modmenu"}:
+        fail(f"Unexpected suggested dependency keys: {set(suggestions)}")
+    if suggestions.get("stepitup") != "*":
         fail("StepItUp must remain an optional suggested dependency")
+    if suggestions.get("modmenu") != ">=20.0.1":
+        fail("Mod Menu must remain an optional suggested dependency")
+
+    missing_config_files = REQUIRED_CONFIG_FILES - names
+    if missing_config_files:
+        fail(f"Missing Mod Menu configuration files: {missing_config_files}")
+    translations = read_json(archive, "assets/stepup_camera_smoother/lang/en_us.json")
+    if set(translations) != EXPECTED_TRANSLATION_KEYS:
+        fail(f"Unexpected English translation keys: {set(translations)}")
 
     mixin_entries = metadata.get("mixins", [])
     if mixin_entries != ["stepup_camera_smoother.client.mixins.json"]:
@@ -136,6 +179,18 @@ def audit_jar(jar_path: pathlib.Path) -> None:
             fail("StepItUp classes must never be bundled")
         if any(name.startswith("assets/stepitup/") for name in names):
             fail("StepItUp assets must never be bundled")
+        if any(name.startswith("com/terraformersmc/modmenu/") for name in names):
+            fail("Mod Menu classes must never be bundled")
+        if any(name.startswith("assets/modmenu/") for name in names):
+            fail("Mod Menu assets must never be bundled")
+        if any(name.startswith("net/fabricmc/fabric/") for name in names):
+            fail("Fabric API classes must never be bundled")
+        if any(name.startswith("me/shedaniel/clothconfig2/") for name in names):
+            fail("Cloth Config classes must never be bundled")
+        if any(name.startswith("me/shedaniel/autoconfig/") for name in names):
+            fail("Auto Config classes must never be bundled")
+        if any(name.startswith("eu/pb4/placeholders/") for name in names):
+            fail("Text Placeholder API classes must never be bundled")
         if "LICENSE_stepup-camera-smoother" not in names:
             fail("Renamed MIT license is missing from the jar")
 
