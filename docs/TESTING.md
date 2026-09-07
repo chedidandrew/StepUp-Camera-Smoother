@@ -16,6 +16,15 @@ Automated client boot tests verify that Fabric loads the project, both mixin tar
 
 Test all four combinations: without StepItUp or Mod Menu, with Mod Menu only, with StepItUp only, and with both StepItUp and Mod Menu. Cloth Config is part of the StepItUp setup only and is not required by StepUp Camera Smoother.
 
+## Icon and packaging
+
+- Confirm the source icon is a nonblank 512 by 512 PNG.
+- Confirm the playable jar contains `assets/stepup_camera_smoother/icon.png` and its `fabric.mod.json` `icon` field points to that exact path.
+- With Mod Menu installed, confirm the icon appears beside StepUp Camera Smoother at normal and reduced GUI scales without becoming unreadable.
+- Upload the standalone `stepup-camera-smoother-icon-512.png` to the CurseForge project-logo selector and inspect the square preview before submitting.
+
+Expected result: the same original icon appears cleanly in Fabric-aware interfaces and the CurseForge 1:1 project preview. The icon is embedded in the jar but uploaded separately to the CurseForge page.
+
 ## Configuration screen
 
 - In each profile, confirm the game reaches the title screen without missing-dependency or entrypoint errors.
@@ -100,3 +109,4 @@ Expected result: all perspectives remain stable. The third-person camera must no
 - Perspectives tested.
 - Result for every group above.
 - Any screenshots, video, crash reports, and `latest.log` needed to reproduce a failure.
+- Fabric or Mod Menu icon display result and CurseForge project-logo preview result.

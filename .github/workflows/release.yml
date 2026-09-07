@@ -125,6 +125,8 @@ jobs:
         run: |
           set -euo pipefail
           git archive --format=zip --output=build/source-snapshot.zip "${GITHUB_SHA}"
+          cp src/main/resources/assets/stepup_camera_smoother/icon.png \
+            build/stepup-camera-smoother-icon-512.png
           jar_path="$(find build/libs -maxdepth 1 -type f -name '*.jar' \
             ! -name '*-sources.jar' ! -name '*-dev.jar' -print -quit)"
           jar_name="$(basename "${jar_path}")"
@@ -154,6 +156,7 @@ jobs:
             build/checksums/stepup-camera-smoother-${version}.jar.sha256 \
             build/source-snapshot.zip \
             build/PROVENANCE.txt \
+            build/stepup-camera-smoother-icon-512.png \
             --verify-tag \
             --title "StepUp Camera Smoother ${version}" \
             --notes-file RELEASE_NOTES.md \

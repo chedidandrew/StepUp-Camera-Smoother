@@ -1,5 +1,9 @@
 # StepUp Camera Smoother
 
+<p align="center">
+  <img src="src/main/resources/assets/stepup_camera_smoother/icon.png" alt="StepUp Camera Smoother icon" width="160">
+</p>
+
 StepUp Camera Smoother is a client-only Fabric mod for Minecraft Java Edition 26.2. It softens the camera movement caused when collision handling steps the player onto a higher surface.
 
 This alpha line is designed around [StepItUp 3.0](https://modrinth.com/mod/stepitup/version/3.0-26.2-fabric), including its 1.25-block step height, while remaining useful for vanilla stairs, slabs, snow layers, and other mods that change the effective step height.
@@ -43,6 +47,12 @@ See [Compatibility](docs/COMPATIBILITY.md) for the exact fixture and known bound
 5. Start Minecraft once to create `config/stepup-camera-smoother.json`.
 
 Until the first release is manually approved, test jars are available only as artifacts from a successful `Build and verify` GitHub Actions run.
+
+## CurseForge publishing
+
+The canonical project icon is [`src/main/resources/assets/stepup_camera_smoother/icon.png`](src/main/resources/assets/stepup_camera_smoother/icon.png). It is an original 512 by 512 PNG, is registered in `fabric.mod.json`, and is packaged inside the jar so Fabric and compatible mod lists can display it.
+
+CurseForge does not copy the icon out of the jar. Upload the same PNG separately as the project logo when creating the CurseForge page. Successful CI artifacts include a standalone copy named `stepup-camera-smoother-icon-512.png` beside the playable jar and checksum.
 
 ## Configuration
 

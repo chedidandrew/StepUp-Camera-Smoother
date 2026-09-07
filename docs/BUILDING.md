@@ -15,7 +15,7 @@ The included Gradle wrapper downloads Gradle 9.5.1 and verifies the distribution
 python3 scripts/audit_jar.py
 ```
 
-The playable jar is created under `build/libs`. The audit writes its SHA-256 file under `build/checksums`.
+The playable jar is created under `build/libs`. The audit writes its SHA-256 file under `build/checksums`. It also verifies that the metadata points to the bundled 512 by 512 PNG icon and validates the icon's PNG structure and dimensions.
 
 ## Client tests
 
@@ -59,6 +59,12 @@ Minecraft 26.2 uses official unobfuscated names, so Loom exposes these opt-in de
 The opt-in profiles also place Fabric API on their compile-only classpath. Runtime fixture access wideners can expose Fabric lifecycle types in transformed Minecraft class signatures when Gradle recompiles client sources. This compile-only input prevents a missing-type error without adding a production dependency or bundling Fabric API.
 
 Mod Menu's API is present only at compile time for the isolated optional entrypoint. The ordinary client initializer has no Mod Menu link, so the standalone profile also proves that the jar starts without it.
+
+## CurseForge package
+
+Use `build/libs/stepup-camera-smoother-<version>.jar` as the CurseForge mod file. Upload `src/main/resources/assets/stepup_camera_smoother/icon.png` separately as the CurseForge project logo. The website does not import the embedded Fabric icon automatically.
+
+The build workflow stages the same 512 by 512 PNG as `stepup-camera-smoother-icon-512.png` in its verified artifact. The release workflow attaches that standalone file to the GitHub release alongside the jar, checksum, source snapshot, and provenance.
 
 ## Release process
 

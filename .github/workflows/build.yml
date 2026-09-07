@@ -73,7 +73,10 @@ jobs:
             runClientGameTest
 
       - name: Create source snapshot
-        run: git archive --format=zip --output=build/source-snapshot.zip HEAD
+        run: |
+          git archive --format=zip --output=build/source-snapshot.zip HEAD
+          cp src/main/resources/assets/stepup_camera_smoother/icon.png \
+            build/stepup-camera-smoother-icon-512.png
 
       - name: Upload client logs
         if: always()
@@ -110,5 +113,6 @@ jobs:
             !build/libs/*-dev.jar
             build/checksums/*.sha256
             build/source-snapshot.zip
+            build/stepup-camera-smoother-icon-512.png
           if-no-files-found: error
           retention-days: 14

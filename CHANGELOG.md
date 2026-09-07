@@ -2,7 +2,26 @@
 
 All notable project changes are recorded here.
 
-## 0.1.0-alpha.3 - Unreleased
+## 0.1.0-alpha.4 - Unreleased
+
+### Added
+
+- Added an original 512 by 512 project icon showing a smooth camera path over three rising voxel steps.
+- Registered the icon in `fabric.mod.json` and packaged it inside the playable jar for Fabric, Mod Menu, and compatible launchers.
+- Added fail-closed jar checks for the exact metadata path, PNG signature, chunk integrity, 512 by 512 dimensions, and complete image termination.
+- Added a real Fabric Loader client check that resolves the 512-pixel icon through the installed mod metadata.
+- Added a standalone `stepup-camera-smoother-icon-512.png` to CI artifacts and GitHub releases for direct CurseForge project-logo upload.
+
+### Changed
+
+- Added the canonical icon and CurseForge publishing instructions to the README, build guide, testing matrix, and release notes.
+- Bumped the project version from `0.1.0-alpha.3` to `0.1.0-alpha.4` so the icon-bearing jar has a unique version and checksum.
+
+### Release safety
+
+- Kept `release_ready=false`. GitHub Actions and the icon-inclusive manual test matrix must pass on the exact candidate before a release is published.
+
+## 0.1.0-alpha.3 - 2026-09-06 (CI test build)
 
 ### Added
 

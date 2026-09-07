@@ -9,6 +9,9 @@ import net.minecraft.client.gui.screens.TitleScreen;
 /** Loads both mixin targets in a real client and checks the optional fixtures. */
 @SuppressWarnings("UnstableApiUsage")
 public final class ClientBootGameTest implements FabricClientGameTest {
+    private static final String MOD_ID = "stepup_camera_smoother";
+    private static final String EXPECTED_ICON_PATH =
+            "assets/stepup_camera_smoother/icon.png";
     private static final String MOD_MENU_API = "com.terraformersmc.modmenu.api.ModMenuApi";
     private static final String CONFIG_SCREEN_FACTORY_API =
             "com.terraformersmc.modmenu.api.ConfigScreenFactory";
@@ -20,9 +23,10 @@ public final class ClientBootGameTest implements FabricClientGameTest {
         context.waitForScreen(TitleScreen.class);
         context.runOnClient(client -> {
             require(
-                    FabricLoader.getInstance().isModLoaded("stepup_camera_smoother"),
+                    FabricLoader.getInstance().isModLoaded(MOD_ID),
                     "StepUp Camera Smoother was not loaded"
             );
+            verifyIconMetadata();
 
             boolean expectStepItUp = Boolean.parseBoolean(
                     System.getenv("STEPUP_CAMERA_SMOOTHER_EXPECT_STEPITUP")
@@ -51,6 +55,23 @@ public final class ClientBootGameTest implements FabricClientGameTest {
             loadMixinTarget("net.minecraft.client.Camera");
             loadMixinTarget("net.minecraft.client.player.LocalPlayer");
         });
+    }
+
+    private static void verifyIconMetadata() {
+        String iconPath = FabricLoader.getInstance()
+                .getModContainer(MOD_ID)
+                .orElseThrow(() -> new AssertionError(
+                        "StepUp Camera Smoother mod container was not found"
+                ))
+                .getMetadata()
+                .getIconPath(512)
+                .orElseThrow(() -> new AssertionError(
+                        "StepUp Camera Smoother icon metadata was not found"
+                ));
+        require(
+                EXPECTED_ICON_PATH.equals(iconPath),
+                "Unexpected StepUp Camera Smoother icon path: " + iconPath
+        );
     }
 
     private static void verifyModMenuIntegration(

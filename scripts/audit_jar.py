@@ -10,6 +10,7 @@ import pathlib
 import struct
 import sys
 import zipfile
+import zlib
 
 
 PROJECT_CLASS_PREFIX = "dev/chedidandrew/stepupcamerasmoother/"
@@ -21,6 +22,9 @@ EXPECTED_MODMENU_ENTRYPOINT = (
     "dev.chedidandrew.stepupcamerasmoother.client.StepUpCameraSmootherModMenu"
 )
 EXPECTED_CLASS_MAJOR = 69
+EXPECTED_ICON_PATH = "assets/stepup_camera_smoother/icon.png"
+EXPECTED_ICON_SIZE = (512, 512)
+PNG_SIGNATURE = b"\x89PNG\r\n\x1a\n"
 REQUIRED_CONFIG_FILES = {
     "assets/stepup_camera_smoother/lang/en_us.json",
     (
@@ -87,6 +91,103 @@ def read_json(archive: zipfile.ZipFile, path: str) -> dict:
         raise exception
 
 
+def audit_icon(archive: zipfile.ZipFile, names: set[str]) -> None:
+    if EXPECTED_ICON_PATH not in names:
+        fail(f"Missing declared mod icon: {EXPECTED_ICON_PATH}")
+
+    icon = archive.read(EXPECTED_ICON_PATH)
+    if not icon.startswith(PNG_SIGNATURE):
+        fail("Mod icon does not have a valid PNG signature")
+
+    offset = len(PNG_SIGNATURE)
+    chunk_number = 0
+    image_header: tuple[int, int, int, int, int] | None = None
+    compressed_image = bytearray()
+    saw_image_end = False
+
+    while offset < len(icon):
+        if len(icon) - offset < 12:
+            fail("Mod icon contains a truncated PNG chunk header")
+
+        chunk_length = struct.unpack(">I", icon[offset:offset + 4])[0]
+        chunk_type = icon[offset + 4:offset + 8]
+        chunk_data_start = offset + 8
+        chunk_crc_start = chunk_data_start + chunk_length
+        chunk_end = chunk_crc_start + 4
+        if chunk_end > len(icon):
+            fail(f"Mod icon contains a truncated {chunk_type!r} PNG chunk")
+
+        chunk_data = icon[chunk_data_start:chunk_crc_start]
+        expected_crc = struct.unpack(">I", icon[chunk_crc_start:chunk_end])[0]
+        actual_crc = zlib.crc32(chunk_type)
+        actual_crc = zlib.crc32(chunk_data, actual_crc) & 0xFFFFFFFF
+        if actual_crc != expected_crc:
+            fail(f"Mod icon has an invalid {chunk_type!r} PNG chunk CRC")
+
+        if chunk_number == 0 and chunk_type != b"IHDR":
+            fail("Mod icon PNG must begin with an IHDR chunk")
+        if chunk_type == b"IHDR":
+            if image_header is not None or chunk_length != 13:
+                fail("Mod icon has an invalid IHDR chunk")
+            width, height, bit_depth, color_type, compression, filtering, interlace = (
+                struct.unpack(">IIBBBBB", chunk_data)
+            )
+            if (width, height) != EXPECTED_ICON_SIZE:
+                fail(
+                    "Mod icon dimensions are "
+                    f"{width}x{height}, expected "
+                    f"{EXPECTED_ICON_SIZE[0]}x{EXPECTED_ICON_SIZE[1]}"
+                )
+            valid_bit_depths = {
+                0: {1, 2, 4, 8, 16},
+                2: {8, 16},
+                3: {1, 2, 4, 8},
+                4: {8, 16},
+                6: {8, 16},
+            }
+            if bit_depth not in valid_bit_depths.get(color_type, set()):
+                fail("Mod icon has an invalid PNG color type or bit depth")
+            if compression != 0 or filtering != 0 or interlace != 0:
+                fail("Mod icon must use standard compression, filtering, and no interlace")
+            image_header = (width, height, bit_depth, color_type, interlace)
+        elif chunk_type == b"IDAT":
+            compressed_image.extend(chunk_data)
+        elif chunk_type == b"IEND":
+            if chunk_length != 0:
+                fail("Mod icon has an invalid IEND chunk")
+            saw_image_end = True
+            if chunk_end != len(icon):
+                fail("Mod icon contains data after its IEND chunk")
+
+        offset = chunk_end
+        chunk_number += 1
+        if saw_image_end:
+            break
+
+    if image_header is None or not compressed_image or not saw_image_end:
+        fail("Mod icon is missing required PNG chunks")
+
+    width, height, bit_depth, color_type, _ = image_header
+    channels = {0: 1, 2: 3, 3: 1, 4: 2, 6: 4}[color_type]
+    row_size = (width * channels * bit_depth + 7) // 8
+    expected_decoded_size = height * (row_size + 1)
+    inflater = zlib.decompressobj()
+    try:
+        decoded = inflater.decompress(compressed_image, expected_decoded_size + 1)
+        decoded += inflater.flush()
+    except zlib.error as exception:
+        fail(f"Mod icon contains invalid compressed PNG image data: {exception}")
+    if (
+        len(decoded) != expected_decoded_size
+        or not inflater.eof
+        or inflater.unused_data
+        or inflater.unconsumed_tail
+    ):
+        fail("Mod icon PNG image data does not match its declared dimensions")
+    if any(decoded[row * (row_size + 1)] > 4 for row in range(height)):
+        fail("Mod icon contains an invalid PNG row filter")
+
+
 def audit_metadata(archive: zipfile.ZipFile, names: set[str]) -> None:
     metadata = read_json(archive, "fabric.mod.json")
     if metadata.get("id") != EXPECTED_MOD_ID:
@@ -95,6 +196,10 @@ def audit_metadata(archive: zipfile.ZipFile, names: set[str]) -> None:
         fail("The published mod must be client-only")
     if "${" in str(metadata):
         fail("Unexpanded Gradle placeholder found in fabric.mod.json")
+    if metadata.get("icon") != EXPECTED_ICON_PATH:
+        fail(f"Unexpected mod icon metadata: {metadata.get('icon')}")
+
+    audit_icon(archive, names)
 
     entrypoints = metadata.get("entrypoints", {})
     client_entrypoints = entrypoints.get("client", [])
