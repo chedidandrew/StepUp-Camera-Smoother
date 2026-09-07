@@ -1,14 +1,14 @@
-# StepUp Camera Smoother
+# Smart StepUp Camera Smoother
 
 <p align="center">
-  <img src="src/main/resources/assets/stepup_camera_smoother/icon.png" alt="StepUp Camera Smoother icon" width="160">
+  <img src="src/main/resources/assets/stepup_camera_smoother/icon.png" alt="Smart StepUp Camera Smoother icon" width="160">
 </p>
 
-StepUp Camera Smoother is a client-only Fabric mod for Minecraft Java Edition 26.2. It softens the camera movement caused when collision handling steps the player onto a higher surface.
+Smart StepUp Camera Smoother is a client-only Fabric mod for Minecraft Java Edition 26.2. It softens the camera movement caused when collision handling steps the player onto a higher surface.
 
-This alpha line is designed around [StepItUp 3.0](https://modrinth.com/mod/stepitup/version/3.0-26.2-fabric), including its 1.25-block step height, while remaining useful for vanilla stairs, slabs, snow layers, and other mods that change the effective step height.
+This release is designed around [StepItUp 3.0](https://modrinth.com/mod/stepitup/version/3.0-26.2-fabric), including its 1.25-block step height, while remaining useful for vanilla stairs, slabs, snow layers, and other mods that change the effective step height.
 
-> Status: source-complete alpha. GitHub Actions must pass and the built jar must be tested in Minecraft before a GitHub release is allowed. `release_ready=false` intentionally blocks release publication today.
+> Status: stable 0.1.0 release candidate. GitHub Actions must pass on the renamed artifact before publication. `release_ready=false` remains in place until that exact candidate and checksum are verified.
 
 ## What it does
 
@@ -41,22 +41,22 @@ See [Compatibility](docs/COMPATIBILITY.md) for the exact fixture and known bound
 ## Installation
 
 1. Install Fabric Loader for Minecraft 26.2.
-2. Put the verified `stepup-camera-smoother-<version>.jar` in the instance `mods` folder.
+2. Put the verified `smart-stepup-camera-smoother-<version>.jar` in the instance `mods` folder.
 3. Optionally install Mod Menu 20.0.1, Fabric API, and Text Placeholder API to configure smoothness in game. A dependency-aware launcher normally installs the latter two automatically.
-4. Optionally install StepItUp, Fabric API, and Cloth Config if you want StepItUp's full-block stepping feature. Fabric API and Cloth Config are dependencies of StepItUp, not StepUp Camera Smoother.
+4. Optionally install StepItUp, Fabric API, and Cloth Config if you want StepItUp's full-block stepping feature. Fabric API and Cloth Config are dependencies of StepItUp, not Smart StepUp Camera Smoother.
 5. Start Minecraft once to create `config/stepup-camera-smoother.json`.
 
-Until the first release is manually approved, test jars are available only as artifacts from a successful `Build and verify` GitHub Actions run.
+The public rename does not change the internal mod ID `stepup_camera_smoother`, Java packages, resource namespace, or `config/stepup-camera-smoother.json`. Existing alpha installations upgrade in place and retain their configuration.
 
 ## CurseForge publishing
 
 The canonical project icon is [`src/main/resources/assets/stepup_camera_smoother/icon.png`](src/main/resources/assets/stepup_camera_smoother/icon.png). It is an original 512 by 512 PNG, is registered in `fabric.mod.json`, and is packaged inside the jar so Fabric and compatible mod lists can display it.
 
-CurseForge does not copy the icon out of the jar. Upload the same PNG separately as the project logo when creating the CurseForge page. Successful CI artifacts include a standalone copy named `stepup-camera-smoother-icon-512.png` beside the playable jar and checksum.
+CurseForge does not copy the icon out of the jar. Upload the same PNG separately as the project logo when creating the CurseForge page. Successful CI artifacts include a standalone copy named `smart-stepup-camera-smoother-icon-512.png` beside the playable jar and checksum.
 
 ## Configuration
 
-With Mod Menu installed, open **Mods**, select **StepUp Camera Smoother**, and open its configuration screen. The **Smoothness** slider ranges from 0% to 200%:
+With Mod Menu installed, open **Mods**, select **Smart StepUp Camera Smoother**, and open its configuration screen. The **Smoothness** slider ranges from 0% to 200%:
 
 - 0% leaves the original upward camera motion unchanged.
 - 50% smooths half of each upward camera snap.
@@ -66,7 +66,7 @@ With Mod Menu installed, open **Mods**, select **StepUp Camera Smoother**, and o
 
 The **Third Person** control enables or disables smoothing in both rear and front third-person views. Select **Done** to save and apply both values immediately. The current camera transition is cleared so the next eligible step uses the new settings. **Cancel** or Escape discards changes made on the screen. **Reset** restores 100% Smoothness and enables third-person smoothing without changing the other JSON settings.
 
-Mod Menu is an optional integration, not a dependency required to start or use the mod. StepUp Camera Smoother does not use Cloth Config.
+Mod Menu is an optional integration, not a dependency required to start or use the mod. Smart StepUp Camera Smoother does not use Cloth Config.
 
 The generated file is `config/stepup-camera-smoother.json`:
 
@@ -121,4 +121,4 @@ Minecraft is a trademark of Microsoft. This project is not affiliated with or en
 
 ## License
 
-StepUp Camera Smoother is available under the [MIT License](LICENSE).
+Smart StepUp Camera Smoother is available under the [MIT License](LICENSE).

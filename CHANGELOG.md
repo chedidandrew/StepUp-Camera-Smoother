@@ -2,7 +2,27 @@
 
 All notable project changes are recorded here.
 
-## 0.1.0-alpha.4 - Unreleased
+## 0.1.0 - Unreleased
+
+### Changed
+
+- Renamed the public mod from **StepUp Camera Smoother** to **Smart StepUp Camera Smoother**.
+- Renamed distributable jars, checksum files, Maven artifacts, CI bundles, and the standalone CurseForge icon to use the `smart-stepup-camera-smoother` artifact slug.
+- Promoted the tested alpha line to the stable `0.1.0` version without changing camera behavior.
+- Updated Fabric metadata, Mod Menu text, initialization logging, client-test metadata, release titles, documentation, and packaging instructions for the new public name.
+- Added fail-closed jar and live-client checks for the exact public display name and renamed artifact.
+- Replaced the tag-first manual publisher with a candidate-first release gate. The main build publishes only after the rebuilt jar matches the approved SHA-256 stored in `release_jar_sha256`.
+
+### Upgrade compatibility
+
+- Preserved the internal mod ID `stepup_camera_smoother`, `config/stepup-camera-smoother.json`, resource namespace, translation keys, mixin configuration, Java packages, and entrypoint classes. Existing alpha installations therefore retain their settings and load as the same mod after upgrading.
+- Kept the text-free 512 by 512 icon unchanged, so the already reviewed artwork remains the canonical Fabric and CurseForge project icon.
+
+### Release safety
+
+- Kept `release_ready=false` while the renamed stable candidate is built and verified. The final release commit will record the exact reproducible jar checksum before publication.
+
+## 0.1.0-alpha.4 - 2026-09-07 (CI test build)
 
 ### Added
 

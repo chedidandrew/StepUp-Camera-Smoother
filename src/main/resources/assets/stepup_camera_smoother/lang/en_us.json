@@ -1,5 +1,5 @@
 {
-  "stepup_camera_smoother.config.title": "StepUp Camera Smoother",
+  "stepup_camera_smoother.config.title": "Smart StepUp Camera Smoother",
   "stepup_camera_smoother.config.smoothness": "Smoothness: %s%%",
   "stepup_camera_smoother.config.description": "Smooths upward steps in first-person and third-person views.",
   "stepup_camera_smoother.config.description_range": "Above 100% extends recovery time, up to 2x at 200%.",

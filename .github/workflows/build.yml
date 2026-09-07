@@ -11,7 +11,9 @@ permissions:
 
 concurrency:
   group: build-${{ github.workflow }}-${{ github.ref }}
-  cancel-in-progress: true
+  # A newer branch build may supersede an older one, but a main-branch run must
+  # never be cancelled while its release gate is being evaluated or published.
+  cancel-in-progress: ${{ github.ref != 'refs/heads/main' }}
 
 jobs:
   build:
@@ -72,11 +74,35 @@ jobs:
             -Pinclude_modmenu_runtime=true \
             runClientGameTest
 
-      - name: Create source snapshot
+      - name: Re-audit final playable jar
+        run: python3 scripts/audit_jar.py
+
+      - name: Create release evidence
+        shell: bash
         run: |
+          set -euo pipefail
           git archive --format=zip --output=build/source-snapshot.zip HEAD
           cp src/main/resources/assets/stepup_camera_smoother/icon.png \
-            build/stepup-camera-smoother-icon-512.png
+            build/smart-stepup-camera-smoother-icon-512.png
+          mapfile -d '' jars < <(find build/libs -maxdepth 1 -type f \
+            -name '*.jar' ! -name '*-sources.jar' ! -name '*-dev.jar' \
+            -print0)
+          if [[ "${#jars[@]}" -ne 1 ]]; then
+            echo "Expected exactly one playable jar, found ${#jars[@]}." >&2
+            exit 1
+          fi
+          version="$(sed -n 's/^mod_version=//p' gradle.properties)"
+          jar_name="$(basename "${jars[0]}")"
+          jar_sha256="$(sha256sum "${jars[0]}" | cut -d' ' -f1)"
+          {
+            echo "commit=${GITHUB_SHA}"
+            echo "version=${version}"
+            echo "jar=${jar_name}"
+            echo "sha256=${jar_sha256}"
+            echo "workflow_run_id=${GITHUB_RUN_ID}"
+            java --version 2>&1 | sed 's/^/java=/'
+            ./gradlew --no-daemon --version | sed 's/^/gradle=/'
+          } > build/PROVENANCE.txt
 
       - name: Upload client logs
         if: always()
@@ -106,13 +132,258 @@ jobs:
       - name: Upload verified artifacts
         uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4
         with:
-          name: StepUp-Camera-Smoother-${{ github.sha }}
+          name: Smart-StepUp-Camera-Smoother-${{ github.sha }}
           path: |
             build/libs/*.jar
             !build/libs/*-sources.jar
             !build/libs/*-dev.jar
             build/checksums/*.sha256
             build/source-snapshot.zip
-            build/stepup-camera-smoother-icon-512.png
+            build/PROVENANCE.txt
+            build/smart-stepup-camera-smoother-icon-512.png
           if-no-files-found: error
           retention-days: 14
+
+  publish:
+    name: Publish approved stable release
+    needs: build
+    if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+    runs-on: ubuntu-24.04
+    timeout-minutes: 15
+    permissions:
+      actions: read
+      contents: write
+    concurrency:
+      group: stable-release
+      cancel-in-progress: false
+
+    steps:
+      - name: Check out tested source
+        uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
+        with:
+          persist-credentials: false
+
+      - name: Enforce stored release gate
+        id: gate
+        shell: bash
+        run: |
+          set -euo pipefail
+
+          read_required_property() {
+            local key="$1"
+            local count
+            count="$(grep -Ec "^${key}=.*$" gradle.properties || true)"
+            if [[ "${count}" -ne 1 ]]; then
+              echo "gradle.properties must contain exactly one ${key} entry." >&2
+              exit 1
+            fi
+            sed -n "s/^${key}=//p" gradle.properties
+          }
+
+          release_ready="$(read_required_property release_ready)"
+          version="$(read_required_property mod_version)"
+          archive_base="$(read_required_property archives_base_name)"
+
+          if [[ "${release_ready}" == "false" ]]; then
+            echo "Release gate is closed; retaining this as a verified build only."
+            echo "enabled=false" >> "${GITHUB_OUTPUT}"
+            exit 0
+          fi
+          if [[ "${release_ready}" != "true" ]]; then
+            echo "release_ready must be exactly true or false." >&2
+            exit 1
+          fi
+          if [[ ! "${version}" =~ ^[0-9]+\.[0-9]+\.[0-9]+$ ]]; then
+            echo "mod_version must be a stable semantic version without a prerelease suffix." >&2
+            exit 1
+          fi
+          if [[ "${archive_base}" != "smart-stepup-camera-smoother" ]]; then
+            echo "Unexpected archives_base_name: ${archive_base}" >&2
+            exit 1
+          fi
+
+          expected_sha256="$(read_required_property release_jar_sha256)"
+          if [[ ! "${expected_sha256}" =~ ^[0-9a-f]{64}$ ]]; then
+            echo "release_jar_sha256 must be an exact lowercase SHA-256 when release_ready=true." >&2
+            exit 1
+          fi
+
+          {
+            echo "enabled=true"
+            echo "version=${version}"
+            echo "tag=v${version}"
+            echo "jar_name=${archive_base}-${version}.jar"
+            echo "expected_sha256=${expected_sha256}"
+          } >> "${GITHUB_OUTPUT}"
+
+      - name: Download artifacts from this tested run
+        if: steps.gate.outputs.enabled == 'true'
+        uses: actions/download-artifact@d3f86a106a0bac45b974a628896c90dbdf5c8093 # v4
+        with:
+          name: Smart-StepUp-Camera-Smoother-${{ github.sha }}
+          path: build/release-artifact
+
+      - name: Verify exact approved artifact
+        if: steps.gate.outputs.enabled == 'true'
+        shell: bash
+        env:
+          EXPECTED_SHA256: ${{ steps.gate.outputs.expected_sha256 }}
+          JAR_NAME: ${{ steps.gate.outputs.jar_name }}
+          VERSION: ${{ steps.gate.outputs.version }}
+        run: |
+          set -euo pipefail
+          artifact_root="build/release-artifact"
+          jar_path="${artifact_root}/libs/${JAR_NAME}"
+          checksum_path="${artifact_root}/checksums/${JAR_NAME}.sha256"
+          provenance_path="${artifact_root}/PROVENANCE.txt"
+
+          required_files=(
+            "${jar_path}"
+            "${checksum_path}"
+            "${artifact_root}/source-snapshot.zip"
+            "${provenance_path}"
+            "${artifact_root}/smart-stepup-camera-smoother-icon-512.png"
+          )
+          for file in "${required_files[@]}"; do
+            if [[ ! -f "${file}" ]]; then
+              echo "Required release asset is missing: ${file}" >&2
+              exit 1
+            fi
+          done
+
+          actual_sha256="$(sha256sum "${jar_path}" | cut -d' ' -f1)"
+          if [[ "${actual_sha256}" != "${EXPECTED_SHA256}" ]]; then
+            echo "Built jar does not match the stored release_jar_sha256." >&2
+            exit 1
+          fi
+          expected_checksum_line="${EXPECTED_SHA256}  ${JAR_NAME}"
+          if [[ "$(cat "${checksum_path}")" != "${expected_checksum_line}" ]]; then
+            echo "Published checksum file does not describe the approved jar exactly." >&2
+            exit 1
+          fi
+          (
+            cd "$(dirname "${jar_path}")"
+            sha256sum --check "../checksums/${JAR_NAME}.sha256"
+          )
+          grep -Fx "commit=${GITHUB_SHA}" "${provenance_path}"
+          grep -Fx "version=${VERSION}" "${provenance_path}"
+          grep -Fx "jar=${JAR_NAME}" "${provenance_path}"
+          grep -Fx "sha256=${EXPECTED_SHA256}" "${provenance_path}"
+          grep -Fx "workflow_run_id=${GITHUB_RUN_ID}" "${provenance_path}"
+
+      - name: Require a new tag and release
+        if: steps.gate.outputs.enabled == 'true'
+        shell: bash
+        env:
+          GH_TOKEN: ${{ github.token }}
+          RELEASE_TAG: ${{ steps.gate.outputs.tag }}
+        run: |
+          set -euo pipefail
+          remote_tag="$(git ls-remote --refs origin "refs/tags/${RELEASE_TAG}")" || {
+            echo "Could not verify whether ${RELEASE_TAG} already exists." >&2
+            exit 1
+          }
+          if [[ -n "${remote_tag}" ]]; then
+            echo "Tag ${RELEASE_TAG} already exists; refusing to overwrite it." >&2
+            exit 1
+          fi
+          existing_release_ids="$(
+            gh api --paginate \
+              "repos/${GITHUB_REPOSITORY}/releases?per_page=100" \
+              --jq ".[] | select(.tag_name == \"${RELEASE_TAG}\") | .id"
+          )" || {
+            echo "Could not verify whether a release for ${RELEASE_TAG} exists." >&2
+            exit 1
+          }
+          if [[ -n "${existing_release_ids}" ]]; then
+            echo "A release for ${RELEASE_TAG} already exists; refusing to replace it." >&2
+            exit 1
+          fi
+
+      - name: Create and verify release tag
+        if: steps.gate.outputs.enabled == 'true'
+        shell: bash
+        env:
+          GH_TOKEN: ${{ github.token }}
+          RELEASE_TAG: ${{ steps.gate.outputs.tag }}
+        run: |
+          set -euo pipefail
+          gh api --method POST "repos/${GITHUB_REPOSITORY}/git/refs" \
+            -f "ref=refs/tags/${RELEASE_TAG}" \
+            -f "sha=${GITHUB_SHA}" >/dev/null
+          tag_sha="$(
+            gh api "repos/${GITHUB_REPOSITORY}/git/ref/tags/${RELEASE_TAG}" \
+              --jq '.object.sha'
+          )"
+          if [[ "${tag_sha}" != "${GITHUB_SHA}" ]]; then
+            echo "Created tag points to ${tag_sha}, expected ${GITHUB_SHA}." >&2
+            exit 1
+          fi
+
+      - name: Create GitHub release from the tested commit
+        if: steps.gate.outputs.enabled == 'true'
+        shell: bash
+        env:
+          GH_TOKEN: ${{ github.token }}
+          JAR_NAME: ${{ steps.gate.outputs.jar_name }}
+          RELEASE_TAG: ${{ steps.gate.outputs.tag }}
+          VERSION: ${{ steps.gate.outputs.version }}
+        run: |
+          set -euo pipefail
+          artifact_root="build/release-artifact"
+          gh release create "${RELEASE_TAG}" \
+            "${artifact_root}/libs/${JAR_NAME}" \
+            "${artifact_root}/checksums/${JAR_NAME}.sha256" \
+            "${artifact_root}/source-snapshot.zip" \
+            "${artifact_root}/PROVENANCE.txt" \
+            "${artifact_root}/smart-stepup-camera-smoother-icon-512.png" \
+            --repo "${GITHUB_REPOSITORY}" \
+            --verify-tag \
+            --title "Smart StepUp Camera Smoother ${VERSION}" \
+            --notes-file RELEASE_NOTES.md
+
+      - name: Verify published tag and release assets
+        if: steps.gate.outputs.enabled == 'true'
+        shell: bash
+        env:
+          GH_TOKEN: ${{ github.token }}
+          JAR_NAME: ${{ steps.gate.outputs.jar_name }}
+          RELEASE_TAG: ${{ steps.gate.outputs.tag }}
+        run: |
+          set -euo pipefail
+          tag_sha="$(
+            gh api "repos/${GITHUB_REPOSITORY}/git/ref/tags/${RELEASE_TAG}" \
+              --jq '.object.sha'
+          )"
+          if [[ "${tag_sha}" != "${GITHUB_SHA}" ]]; then
+            echo "Published tag points to ${tag_sha}, expected ${GITHUB_SHA}." >&2
+            exit 1
+          fi
+
+          release_state="$(
+            gh release view "${RELEASE_TAG}" --repo "${GITHUB_REPOSITORY}" \
+              --json isDraft,isPrerelease,tagName \
+              --jq '[.tagName, .isDraft, .isPrerelease] | @tsv'
+          )"
+          expected_release_state="${RELEASE_TAG}"$'\tfalse\tfalse'
+          if [[ "${release_state}" != "${expected_release_state}" ]]; then
+            echo "Published release has unexpected tag, draft, or prerelease state." >&2
+            exit 1
+          fi
+
+          expected_assets="$(printf '%s\n' \
+            "${JAR_NAME}" \
+            "${JAR_NAME}.sha256" \
+            'PROVENANCE.txt' \
+            'smart-stepup-camera-smoother-icon-512.png' \
+            'source-snapshot.zip' | sort)"
+          actual_assets="$(
+            gh release view "${RELEASE_TAG}" --repo "${GITHUB_REPOSITORY}" \
+              --json assets --jq '.assets[].name' | sort
+          )"
+          if [[ "${actual_assets}" != "${expected_assets}" ]]; then
+            echo "Published release assets do not match the required set." >&2
+            diff -u <(printf '%s\n' "${expected_assets}") \
+              <(printf '%s\n' "${actual_assets}") || true
+            exit 1
+          fi

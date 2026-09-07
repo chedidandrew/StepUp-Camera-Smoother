@@ -2,7 +2,7 @@
   "schemaVersion": 1,
   "id": "stepup_camera_smoother",
   "version": "${version}",
-  "name": "StepUp Camera Smoother",
+  "name": "Smart StepUp Camera Smoother",
   "description": "Smooths the client camera when collision movement steps the player upward.",
   "icon": "assets/stepup_camera_smoother/icon.png",
   "authors": [

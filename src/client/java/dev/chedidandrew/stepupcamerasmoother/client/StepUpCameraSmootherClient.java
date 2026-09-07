@@ -12,6 +12,6 @@ public final class StepUpCameraSmootherClient implements ClientModInitializer {
     @Override
     public void onInitializeClient() {
         SmootherConfig.load(LOGGER);
-        LOGGER.info("StepUp Camera Smoother initialized for Minecraft 26.2.");
+        LOGGER.info("Smart StepUp Camera Smoother initialized for Minecraft 26.2.");
     }
 }

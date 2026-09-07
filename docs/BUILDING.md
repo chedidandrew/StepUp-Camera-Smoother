@@ -52,7 +52,7 @@ STEPUP_CAMERA_SMOOTHER_EXPECT_MODMENU=true \
   runClientGameTest
 ```
 
-The StepItUp profiles resolve StepItUp and Cloth Config from immutable Modrinth version IDs. The Mod Menu profiles resolve immutable Modrinth versions of Mod Menu 20.0.1 and its required Text Placeholder API, while Fabric API is already part of the test runtime. These dependencies are local-runtime test fixtures and are excluded from the built jar. StepUp Camera Smoother itself does not depend on Cloth Config, Fabric API, or Text Placeholder API.
+The StepItUp profiles resolve StepItUp and Cloth Config from immutable Modrinth version IDs. The Mod Menu profiles resolve immutable Modrinth versions of Mod Menu 20.0.1 and its required Text Placeholder API, while Fabric API is already part of the test runtime. These dependencies are local-runtime test fixtures and are excluded from the built jar. Smart StepUp Camera Smoother itself does not depend on Cloth Config, Fabric API, or Text Placeholder API.
 
 Minecraft 26.2 uses official unobfuscated names, so Loom exposes these opt-in development fixtures through its `localRuntime` configuration. They are not declared during a normal build and are not exposed as published dependencies.
 
@@ -62,18 +62,19 @@ Mod Menu's API is present only at compile time for the isolated optional entrypo
 
 ## CurseForge package
 
-Use `build/libs/stepup-camera-smoother-<version>.jar` as the CurseForge mod file. Upload `src/main/resources/assets/stepup_camera_smoother/icon.png` separately as the CurseForge project logo. The website does not import the embedded Fabric icon automatically.
+Use `build/libs/smart-stepup-camera-smoother-<version>.jar` as the CurseForge mod file. Upload `src/main/resources/assets/stepup_camera_smoother/icon.png` separately as the CurseForge project logo. The website does not import the embedded Fabric icon automatically.
 
-The build workflow stages the same 512 by 512 PNG as `stepup-camera-smoother-icon-512.png` in its verified artifact. The release workflow attaches that standalone file to the GitHub release alongside the jar, checksum, source snapshot, and provenance.
+The build workflow stages the same 512 by 512 PNG as `smart-stepup-camera-smoother-icon-512.png` in its verified artifact. A successful release attaches that standalone file to the GitHub release alongside the jar, checksum, source snapshot, and provenance.
 
 ## Release process
 
-1. Finish the code, tests, `CHANGELOG.md`, and `RELEASE_NOTES.md`.
-2. Set `release_ready=true` and commit the final candidate.
-3. Make the build workflow pass on that exact final commit.
-4. Download its verified artifact and manually test it using `docs/TESTING.md`.
-5. Record the exact 40-character commit SHA and jar SHA-256 without creating another commit.
-6. Tag that same commit as `v<mod_version>`.
-7. Dispatch `Publish tested release` on that tag and enter both recorded values.
+1. Finish all jar-affecting code and resources, then finish the tests, `CHANGELOG.md`, and `RELEASE_NOTES.md`. Keep `release_ready=false` and leave `release_jar_sha256` empty.
+2. Commit and push the release candidate. Let the build workflow finish its unit tests, jar audit, and all four client boot profiles.
+3. Download that workflow's verified `Smart-StepUp-Camera-Smoother-<commit>` artifact and manually test its playable jar using `docs/TESTING.md`.
+4. Record the exact candidate jar SHA-256 from the verified artifact.
+5. Make a gate-only commit that sets `release_jar_sha256` to that lowercase 64-character value and changes `release_ready` to `true`. Do not change any input that affects the jar in this commit.
+6. Push the gate commit to `main`. The build workflow rebuilds and retests the source, requires the rebuilt jar to match `release_jar_sha256`, and only then creates tag `v<mod_version>` and its GitHub release.
 
-The release workflow rebuilds, repeats unit tests and all four client boot profiles, audits the jar, compares the rebuilt jar with the manually tested SHA-256, writes provenance evidence, and then creates the GitHub release. Any mismatch fails closed.
+The final gate commit may update release status documentation and the two release-gate properties only. Matching artifact hashes prove that the jar published from the final commit is byte-for-byte identical to the candidate that was approved. An invalid version, missing or malformed SHA-256, failed test, existing tag or release, or hash mismatch fails closed without publishing.
+
+After publication, verify that the GitHub release contains `smart-stepup-camera-smoother-<version>.jar`, its adjacent `.sha256` file, `source-snapshot.zip`, `PROVENANCE.txt`, and `smart-stepup-camera-smoother-icon-512.png`.

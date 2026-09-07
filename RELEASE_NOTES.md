@@ -1,6 +1,6 @@
-# StepUp Camera Smoother 0.1.0-alpha.4
+# Smart StepUp Camera Smoother 0.1.0
 
-This is the fourth test-build candidate for Minecraft Java Edition 26.2 on Fabric. It remains unreleased until automated verification and the exact candidate jar pass manual testing.
+Smart StepUp Camera Smoother 0.1.0 is the first stable release for Minecraft Java Edition 26.2 on Fabric.
 
 ## Included
 
@@ -16,14 +16,20 @@ This is the fourth test-build candidate for Minecraft Java Edition 26.2 on Fabri
 - Immediate application after selecting Done, with Reset, Cancel, and Escape behavior that preserves unexposed JSON settings.
 - No required library mod beyond Fabric Loader.
 
+## Public rename and upgrades
+
+The public project name changed from StepUp Camera Smoother to Smart StepUp Camera Smoother, and release files now use `smart-stepup-camera-smoother-<version>.jar`.
+
+This is a compatibility-safe public rename. The internal mod ID `stepup_camera_smoother`, resource namespace `stepup_camera_smoother`, Java packages, mixin configuration, translation keys, and `config/stepup-camera-smoother.json` path are unchanged. Existing alpha installations upgrade in place and retain their configuration.
+
 ## Configuration
 
 Install Mod Menu 20.0.1 to use the in-game screen. Smoothness at 0% leaves the original camera motion, 50% applies half smoothing, and 100% applies full smoothing. From 101% through 200%, the correction remains full while the recovery lasts progressively longer. The slider controls `smoothing_strength` from `0.0` through `2.0` and defaults to 100%.
 
-Mod Menu is optional. StepUp Camera Smoother starts and works without it, and the mod does not depend on Cloth Config. Cloth Config is needed only when required by an independently installed mod such as the tested StepItUp fixture.
+Mod Menu is optional. Smart StepUp Camera Smoother starts and works without it, and the mod does not depend on Cloth Config. Cloth Config is needed only when required by an independently installed mod such as the tested StepItUp fixture.
 
-## Test status
+## Verification
 
-The repository build, unit tests, icon-aware jar audit, and all four client boot profiles must pass before publication. The profiles are standalone, Mod Menu only, StepItUp only, and StepItUp plus Mod Menu. This alpha must also be tested manually in Minecraft at 0%, 50%, 100%, 150%, and 200% smoothness in all three perspectives on the exact tagged commit before the release workflow can publish it.
+The stable artifact must pass the repository build, unit tests, icon-aware jar audit, and all four client boot profiles: standalone, Mod Menu only, StepItUp only, and StepItUp plus Mod Menu. Its SHA-256 must also match the approved candidate recorded by the fail-closed release gate before GitHub publishes the tag and release.
 
 See `docs/TESTING.md` for the manual test matrix and `CHANGELOG.md` for the complete change record.

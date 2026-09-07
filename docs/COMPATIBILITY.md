@@ -15,6 +15,12 @@
 
 The public dependency range is deliberately limited to `>=26.2 <26.3`. A later Minecraft line must be compiled and tested before the range is widened because the camera pipeline changed in 26.2.
 
+## Stable rename compatibility
+
+Version 0.1.0 changes the public project name to Smart StepUp Camera Smoother and the release artifact basename to `smart-stepup-camera-smoother`. This does not create a second mod identity.
+
+The internal mod ID remains `stepup_camera_smoother`. The resource namespace remains `stepup_camera_smoother`, the mixin configuration remains `stepup_camera_smoother.client.mixins.json`, Java packages remain under `dev.chedidandrew.stepupcamerasmoother`, translation keys retain their `stepup_camera_smoother` prefix, and the configuration file remains `config/stepup-camera-smoother.json`. Fabric, Mod Menu, existing worlds, other mods, and existing alpha configurations therefore continue to recognize the same installation.
+
 ## Exact StepItUp fixture
 
 - File name: `stepitup-3.0-26.2-fabric.jar`
@@ -24,13 +30,13 @@ The public dependency range is deliberately limited to `>=26.2 <26.3`. A later M
 - Size: 56,274 bytes
 - SHA-256: `fe822f4398f458421ace61efefe2689e04396640a170288d4b9d3d6bbc9efe12`
 
-Static inspection found no camera changes or formal integration API. The mod sets the local player's effective step height to 1.25 at `LocalPlayer.move` head and disables auto-jump under its configured conditions. StepUp Camera Smoother reads only the vanilla resolved movement and effective step height.
+Static inspection found no camera changes or formal integration API. The mod sets the local player's effective step height to 1.25 at `LocalPlayer.move` head and disables auto-jump under its configured conditions. Smart StepUp Camera Smoother reads only the vanilla resolved movement and effective step height.
 
 The fixture is downloaded from Modrinth only for the opt-in development or CI runtime. It is not stored in this repository and is not bundled in published jars.
 
 ## Optional Mod Menu integration
 
-Mod Menu 20.0.1 can expose StepUp Camera Smoother's configuration screen. The screen uses native Minecraft widgets and does not use Cloth Config. It provides a 0% to 200% Smoothness slider backed by `smoothing_strength` plus a rear/front third-person toggle backed by `smooth_third_person`.
+Mod Menu 20.0.1 can expose Smart StepUp Camera Smoother's configuration screen. The screen uses native Minecraft widgets and does not use Cloth Config. It provides a 0% to 200% Smoothness slider backed by `smoothing_strength` plus a rear/front third-person toggle backed by `smooth_third_person`.
 
 The CI fixture resolves Mod Menu project `mOgUt4GM`, version `njXb639R`, plus Text Placeholder API project `eXts2L7r`, version `NDqH16LT`. These immutable Modrinth identifiers match the Minecraft 26.2 releases and are used only by the opt-in test runtime.
 

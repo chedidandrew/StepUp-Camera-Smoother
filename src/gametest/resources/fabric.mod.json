@@ -2,7 +2,7 @@
   "schemaVersion": 1,
   "id": "stepup_camera_smoother_gametest",
   "version": "${version}",
-  "name": "StepUp Camera Smoother Client Tests",
+  "name": "Smart StepUp Camera Smoother Client Tests",
   "environment": "client",
   "entrypoints": {
     "fabric-client-gametest": [

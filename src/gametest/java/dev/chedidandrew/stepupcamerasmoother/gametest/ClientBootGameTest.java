@@ -10,6 +10,7 @@ import net.minecraft.client.gui.screens.TitleScreen;
 @SuppressWarnings("UnstableApiUsage")
 public final class ClientBootGameTest implements FabricClientGameTest {
     private static final String MOD_ID = "stepup_camera_smoother";
+    private static final String EXPECTED_MOD_NAME = "Smart StepUp Camera Smoother";
     private static final String EXPECTED_ICON_PATH =
             "assets/stepup_camera_smoother/icon.png";
     private static final String MOD_MENU_API = "com.terraformersmc.modmenu.api.ModMenuApi";
@@ -24,9 +25,9 @@ public final class ClientBootGameTest implements FabricClientGameTest {
         context.runOnClient(client -> {
             require(
                     FabricLoader.getInstance().isModLoaded(MOD_ID),
-                    "StepUp Camera Smoother was not loaded"
+                    "Smart StepUp Camera Smoother was not loaded"
             );
-            verifyIconMetadata();
+            verifyModMetadata();
 
             boolean expectStepItUp = Boolean.parseBoolean(
                     System.getenv("STEPUP_CAMERA_SMOOTHER_EXPECT_STEPITUP")
@@ -57,20 +58,25 @@ public final class ClientBootGameTest implements FabricClientGameTest {
         });
     }
 
-    private static void verifyIconMetadata() {
-        String iconPath = FabricLoader.getInstance()
+    private static void verifyModMetadata() {
+        var metadata = FabricLoader.getInstance()
                 .getModContainer(MOD_ID)
                 .orElseThrow(() -> new AssertionError(
-                        "StepUp Camera Smoother mod container was not found"
+                        "Smart StepUp Camera Smoother mod container was not found"
                 ))
-                .getMetadata()
+                .getMetadata();
+        require(
+                EXPECTED_MOD_NAME.equals(metadata.getName()),
+                "Unexpected public mod name: " + metadata.getName()
+        );
+        String iconPath = metadata
                 .getIconPath(512)
                 .orElseThrow(() -> new AssertionError(
-                        "StepUp Camera Smoother icon metadata was not found"
+                        "Smart StepUp Camera Smoother icon metadata was not found"
                 ));
         require(
                 EXPECTED_ICON_PATH.equals(iconPath),
-                "Unexpected StepUp Camera Smoother icon path: " + iconPath
+                "Unexpected Smart StepUp Camera Smoother icon path: " + iconPath
         );
     }
 

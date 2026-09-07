@@ -15,6 +15,8 @@ import zlib
 
 PROJECT_CLASS_PREFIX = "dev/chedidandrew/stepupcamerasmoother/"
 EXPECTED_MOD_ID = "stepup_camera_smoother"
+EXPECTED_MOD_NAME = "Smart StepUp Camera Smoother"
+EXPECTED_ARCHIVE_BASENAME = "smart-stepup-camera-smoother"
 EXPECTED_CLIENT_ENTRYPOINT = (
     "dev.chedidandrew.stepupcamerasmoother.client.StepUpCameraSmootherClient"
 )
@@ -188,10 +190,12 @@ def audit_icon(archive: zipfile.ZipFile, names: set[str]) -> None:
         fail("Mod icon contains an invalid PNG row filter")
 
 
-def audit_metadata(archive: zipfile.ZipFile, names: set[str]) -> None:
+def audit_metadata(archive: zipfile.ZipFile, names: set[str]) -> dict:
     metadata = read_json(archive, "fabric.mod.json")
     if metadata.get("id") != EXPECTED_MOD_ID:
         fail(f"Unexpected mod id: {metadata.get('id')}")
+    if metadata.get("name") != EXPECTED_MOD_NAME:
+        fail(f"Unexpected public mod name: {metadata.get('name')}")
     if metadata.get("environment") != "client":
         fail("The published mod must be client-only")
     if "${" in str(metadata):
@@ -235,6 +239,11 @@ def audit_metadata(archive: zipfile.ZipFile, names: set[str]) -> None:
     translations = read_json(archive, "assets/stepup_camera_smoother/lang/en_us.json")
     if set(translations) != EXPECTED_TRANSLATION_KEYS:
         fail(f"Unexpected English translation keys: {set(translations)}")
+    if translations.get("stepup_camera_smoother.config.title") != EXPECTED_MOD_NAME:
+        fail(
+            "Unexpected Mod Menu title: "
+            f"{translations.get('stepup_camera_smoother.config.title')}"
+        )
 
     mixin_entries = metadata.get("mixins", [])
     if mixin_entries != ["stepup_camera_smoother.client.mixins.json"]:
@@ -248,6 +257,8 @@ def audit_metadata(archive: zipfile.ZipFile, names: set[str]) -> None:
         class_path = f"{package}.{mixin_name}".replace(".", "/") + ".class"
         if class_path not in names:
             fail(f"Declared mixin class is missing: {class_path}")
+
+    return metadata
 
 
 def audit_classes(archive: zipfile.ZipFile, names: set[str]) -> None:
@@ -299,14 +310,24 @@ def audit_jar(jar_path: pathlib.Path) -> None:
             fail("Auto Config classes must never be bundled")
         if any(name.startswith("eu/pb4/placeholders/") for name in names):
             fail("Text Placeholder API classes must never be bundled")
-        if "LICENSE_stepup-camera-smoother" not in names:
+        expected_license = f"LICENSE_{EXPECTED_ARCHIVE_BASENAME}"
+        if expected_license not in names:
             fail("Renamed MIT license is missing from the jar")
 
         # Reading every file verifies CRCs and catches truncated entries.
         for entry in infos:
             archive.read(entry)
 
-        audit_metadata(archive, names)
+        metadata = audit_metadata(archive, names)
+        version = metadata.get("version")
+        if not isinstance(version, str) or not version:
+            fail(f"Invalid mod version: {version}")
+        expected_jar_name = f"{EXPECTED_ARCHIVE_BASENAME}-{version}.jar"
+        if jar_path.name != expected_jar_name:
+            fail(
+                f"Unexpected playable jar name: {jar_path.name}, "
+                f"expected {expected_jar_name}"
+            )
         audit_classes(archive, names)
 
 

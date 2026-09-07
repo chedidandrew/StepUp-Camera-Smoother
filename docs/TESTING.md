@@ -1,35 +1,37 @@
 # Testing
 
-Automated client boot tests verify that Fabric loads the project, both mixin targets transform, the title screen starts, the optional Mod Menu entrypoint creates its configuration screen, and the exact StepItUp fixture can coexist. CI runs four profiles: standalone, Mod Menu only, StepItUp only, and StepItUp plus Mod Menu. These tests do not judge camera feel. Complete this manual matrix on the exact final candidate commit after `release_ready=true` has been committed and its build has passed. Do not create another commit between testing and tagging.
+Automated client boot tests verify that Fabric loads the project, both mixin targets transform, the title screen starts, the optional Mod Menu entrypoint creates its configuration screen, and the exact StepItUp fixture can coexist. CI runs four profiles: standalone, Mod Menu only, StepItUp only, and StepItUp plus Mod Menu. These tests do not judge camera feel.
+
+Complete this manual matrix on the exact verified candidate jar while `release_ready=false`, then record its SHA-256. The final gate-only commit may set `release_jar_sha256`, change `release_ready` to `true`, and update release status documentation, but it must not change any jar-affecting input. The final main-branch build must reproduce the recorded SHA-256 before it may tag or publish the release.
 
 ## Required setup
 
 - Minecraft 26.2
 - Java 25
 - Fabric Loader 0.19.5 or newer compatible 26.2 build
-- Candidate StepUp Camera Smoother jar
+- Candidate `smart-stepup-camera-smoother-0.1.0.jar`
 - StepItUp 3.0-26.2 Fabric
 - StepItUp's required Fabric API and Cloth Config versions
 - Mod Menu 20.0.1
 - Mod Menu's required Fabric API and Text Placeholder API versions
 - A new test world with cheats enabled
 
-Test all four combinations: without StepItUp or Mod Menu, with Mod Menu only, with StepItUp only, and with both StepItUp and Mod Menu. Cloth Config is part of the StepItUp setup only and is not required by StepUp Camera Smoother.
+Test all four combinations: without StepItUp or Mod Menu, with Mod Menu only, with StepItUp only, and with both StepItUp and Mod Menu. Cloth Config is part of the StepItUp setup only and is not required by Smart StepUp Camera Smoother.
 
 ## Icon and packaging
 
 - Confirm the source icon is a nonblank 512 by 512 PNG.
 - Confirm the playable jar contains `assets/stepup_camera_smoother/icon.png` and its `fabric.mod.json` `icon` field points to that exact path.
-- With Mod Menu installed, confirm the icon appears beside StepUp Camera Smoother at normal and reduced GUI scales without becoming unreadable.
-- Upload the standalone `stepup-camera-smoother-icon-512.png` to the CurseForge project-logo selector and inspect the square preview before submitting.
+- With Mod Menu installed, confirm the icon appears beside Smart StepUp Camera Smoother at normal and reduced GUI scales without becoming unreadable.
+- Upload the standalone `smart-stepup-camera-smoother-icon-512.png` to the CurseForge project-logo selector and inspect the square preview before submitting.
 
 Expected result: the same original icon appears cleanly in Fabric-aware interfaces and the CurseForge 1:1 project preview. The icon is embedded in the jar but uploaded separately to the CurseForge page.
 
 ## Configuration screen
 
 - In each profile, confirm the game reaches the title screen without missing-dependency or entrypoint errors.
-- With Mod Menu absent, confirm StepUp Camera Smoother still loads and smooths eligible steps.
-- With Mod Menu present, open Mods, select StepUp Camera Smoother, and open its configuration screen.
+- With Mod Menu absent, confirm Smart StepUp Camera Smoother still loads and smooths eligible steps.
+- With Mod Menu present, open Mods, select Smart StepUp Camera Smoother, and open its configuration screen.
 - Set Smoothness to 0%, select Done, and confirm eligible steps retain their original camera motion without restarting.
 - Set Smoothness to 50%, select Done, and confirm eligible steps use a visibly partial correction without restarting.
 - Set Smoothness to 100%, select Done, and confirm eligible steps receive the full default correction without restarting.
@@ -42,6 +44,7 @@ Expected result: the same original icon appears cleanly in Fabric-aware interfac
 - Start once with a versionless alpha.2 configuration containing `smooth_third_person: false`, then confirm it is rewritten as configuration version 1 with third-person smoothing enabled and its other values preserved.
 - Start once with a configuration version greater than 1, then confirm safe defaults are active and the newer file remains byte-for-byte unchanged.
 - Make the config path temporarily unwritable in a disposable instance and confirm a failed Done operation reports the failure without losing the previous configuration.
+- Replace an alpha jar with `smart-stepup-camera-smoother-0.1.0.jar` while retaining `config/stepup-camera-smoother.json`, then confirm Fabric shows one mod named Smart StepUp Camera Smoother and the saved settings remain active.
 
 Expected result: values save atomically, apply to the next eligible step immediately, and survive a normal restart. The screen works with and without StepItUp, and no Cloth Config installation is needed unless StepItUp itself requires it.
 
@@ -101,7 +104,8 @@ Expected result: all perspectives remain stable. The third-person camera must no
 
 ## Evidence to record
 
-- Full 40-character Git commit SHA.
+- Full 40-character candidate Git commit SHA.
+- Full 40-character release gate commit SHA.
 - Candidate jar SHA-256.
 - Minecraft, Fabric Loader, Java, StepItUp, Fabric API, and Cloth Config versions.
 - Mod Menu version and all four runtime profiles tested.
