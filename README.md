@@ -8,7 +8,7 @@ Smart StepUp Camera Smoother is a client-only Fabric mod for Minecraft Java Edit
 
 This release is designed around [StepItUp 3.0](https://modrinth.com/mod/stepitup/version/3.0-26.2-fabric), including its 1.25-block step height, while remaining useful for vanilla stairs, slabs, snow layers, and other mods that change the effective step height.
 
-> Status: stable 0.1.0 release candidate. GitHub Actions must pass on the renamed artifact before publication. `release_ready=false` remains in place until that exact candidate and checksum are verified.
+> Latest release: stable 0.1.0 for Minecraft 26.2 on Fabric. The published jar is reproduced from the verified candidate and protected by the repository's fail-closed SHA-256 release gate.
 
 ## What it does
 

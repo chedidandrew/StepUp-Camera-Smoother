@@ -30,6 +30,6 @@ Mod Menu is optional. Smart StepUp Camera Smoother starts and works without it, 
 
 ## Verification
 
-The stable artifact must pass the repository build, unit tests, icon-aware jar audit, and all four client boot profiles: standalone, Mod Menu only, StepItUp only, and StepItUp plus Mod Menu. Its SHA-256 must also match the approved candidate recorded by the fail-closed release gate before GitHub publishes the tag and release.
+Candidate commit `3e87bc794019b090d1948fe10d435d5082e1d47a` passed the repository build, unit tests, icon-aware jar audit, and all four client boot profiles: standalone, Mod Menu only, StepItUp only, and StepItUp plus Mod Menu. The approved jar SHA-256 is `797a4d4e90d9659765f9e797300cf9cc3e41e659006b4d246a5c930b9cf2504c`. The fail-closed release gate publishes only after the final commit rebuilds that byte-identical jar and repeats the complete test matrix.
 
 See `docs/TESTING.md` for the manual test matrix and `CHANGELOG.md` for the complete change record.

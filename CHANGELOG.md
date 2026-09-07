@@ -2,7 +2,7 @@
 
 All notable project changes are recorded here.
 
-## 0.1.0 - Unreleased
+## 0.1.0 - 2026-09-07
 
 ### Changed
 
@@ -20,7 +20,9 @@ All notable project changes are recorded here.
 
 ### Release safety
 
-- Kept `release_ready=false` while the renamed stable candidate is built and verified. The final release commit will record the exact reproducible jar checksum before publication.
+- Passed the full GitHub Actions build, unit-test, jar-audit, and four-profile client boot matrix on candidate commit `3e87bc794019b090d1948fe10d435d5082e1d47a`.
+- Recorded approved jar SHA-256 `797a4d4e90d9659765f9e797300cf9cc3e41e659006b4d246a5c930b9cf2504c` in the final gate-only commit. Publication proceeds only if that commit rebuilds the identical jar after all tests pass.
+- Compared the stable candidate against the manually tested alpha.4 jar. Thirteen of fourteen project classes are byte-identical; the only changed class replaces the initialization log's old public name with the new one. The mixin configuration and icon are byte-identical.
 
 ## 0.1.0-alpha.4 - 2026-09-07 (CI test build)
 
