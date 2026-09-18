@@ -1,5 +1,7 @@
 # Testing
 
+> For the current Minecraft 26.3 port, use [the 26.3 validation and testing record](MINECRAFT_26_3.md). The 26.2 fixtures and four-profile evidence below are historical; StepItUp has no verified 26.3 fixture yet.
+
 Automated client boot tests verify that Fabric loads the project, both mixin targets transform, the title screen starts, the optional Mod Menu entrypoint creates its configuration screen, and the exact StepItUp fixture can coexist. CI runs four profiles: standalone, Mod Menu only, StepItUp only, and StepItUp plus Mod Menu. These tests do not judge camera feel.
 
 Complete this manual matrix on the exact verified candidate jar while `release_ready=false`, then record its SHA-256. The final gate-only commit may set `release_jar_sha256`, change `release_ready` to `true`, and update release status documentation, but it must not change any jar-affecting input. The final main-branch build must reproduce the recorded SHA-256 before it may tag or publish the release.

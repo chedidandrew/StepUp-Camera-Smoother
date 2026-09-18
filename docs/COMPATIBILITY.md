@@ -1,5 +1,7 @@
 # Compatibility
 
+> For the current Minecraft 26.3 port, use [the 26.3 validation and testing record](MINECRAFT_26_3.md). The 26.2 fixtures and four-profile evidence below are historical; StepItUp has no verified 26.3 fixture yet.
+
 ## Primary matrix
 
 | Item | Version | Status |

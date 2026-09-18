@@ -4,6 +4,11 @@ import net.fabricmc.fabric.api.client.gametest.v1.FabricClientGameTest;
 import net.fabricmc.fabric.api.client.gametest.v1.context.ClientGameTestContext;
 import net.fabricmc.loader.api.FabricLoader;
 import net.minecraft.client.gui.screens.Screen;
+import com.mojang.blaze3d.platform.InputConstants;
+import net.minecraft.client.gui.components.AbstractSliderButton;
+import net.minecraft.client.gui.components.Button;
+import net.minecraft.client.input.MouseButtonEvent;
+import net.minecraft.client.input.MouseButtonInfo;
 import net.minecraft.client.gui.screens.TitleScreen;
 
 /** Loads both mixin targets in a real client and checks the optional fixtures. */
@@ -117,11 +122,36 @@ public final class ClientBootGameTest implements FabricClientGameTest {
             Screen screen = (Screen) configScreen;
             client.gui.setScreen(screen);
             require(client.gui.screen() == screen, "The config screen did not become active");
-            client.gui.setScreen(parent);
+            AbstractSliderButton slider = screen.children().stream()
+                    .filter(AbstractSliderButton.class::isInstance)
+                    .map(AbstractSliderButton.class::cast).findFirst().orElseThrow();
+            click(screen, slider.getX() + slider.getWidth() - 1, slider.getY() + 10);
+            require(slider.getMessage().getString().contains("200%"),
+                    "Mouse click did not update the smoothness slider");
+            Button thirdPerson = screen.children().stream()
+                    .filter(Button.class::isInstance).map(Button.class::cast)
+                    .filter(button -> button.getMessage().getString().contains("Third Person"))
+                    .findFirst().orElseThrow();
+            String before = thirdPerson.getMessage().getString();
+            click(screen, thirdPerson.getX() + 5, thirdPerson.getY() + 5);
+            require(!before.equals(thirdPerson.getMessage().getString()),
+                    "Mouse click did not toggle third-person smoothing");
+            Button cancel = screen.children().stream()
+                    .filter(Button.class::isInstance).map(Button.class::cast)
+                    .filter(button -> button.getMessage().getString().equals("Cancel"))
+                    .findFirst().orElseThrow();
+            click(screen, cancel.getX() + 5, cancel.getY() + 5);
             require(client.gui.screen() == parent, "The parent screen was not restored");
         } catch (ReflectiveOperationException exception) {
             throw new AssertionError("Could not verify the Mod Menu integration", exception);
         }
+    }
+
+    private static void click(Screen screen, double x, double y) {
+        MouseButtonEvent event = new MouseButtonEvent(x, y,
+                new MouseButtonInfo(InputConstants.MOUSE_BUTTON_LEFT, 0));
+        require(screen.mouseClicked(event, false), "Screen rejected left mouse click");
+        screen.mouseReleased(event);
     }
 
     private static void loadMixinTarget(String className) {

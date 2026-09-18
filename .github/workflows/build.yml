@@ -56,23 +56,7 @@ jobs:
             -Pinclude_modmenu_runtime=true \
             runClientGameTest
 
-      - name: Run StepItUp-only client boot test
-        env:
-          STEPUP_CAMERA_SMOOTHER_EXPECT_STEPITUP: 'true'
-        run: |
-          xvfb-run -a ./gradlew --no-daemon \
-            -Pinclude_stepitup_runtime=true \
-            runClientGameTest
-
-      - name: Run StepItUp and Mod Menu client boot test
-        env:
-          STEPUP_CAMERA_SMOOTHER_EXPECT_STEPITUP: 'true'
-          STEPUP_CAMERA_SMOOTHER_EXPECT_MODMENU: 'true'
-        run: |
-          xvfb-run -a ./gradlew --no-daemon \
-            -Pinclude_stepitup_runtime=true \
-            -Pinclude_modmenu_runtime=true \
-            runClientGameTest
+      # StepItUp profiles are unavailable until a verified 26.3 fixture exists.
 
       - name: Re-audit final playable jar
         run: python3 scripts/audit_jar.py

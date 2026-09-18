@@ -219,7 +219,7 @@ def audit_metadata(archive: zipfile.ZipFile, names: set[str]) -> dict:
     expected_dependency_keys = {"fabricloader", "minecraft", "java"}
     if set(dependencies) != expected_dependency_keys:
         fail(f"Unexpected required dependency keys: {set(dependencies)}")
-    if dependencies.get("minecraft") != ">=26.2 <26.3":
+    if dependencies.get("minecraft") != ">=26.3 <26.4":
         fail(f"Unexpected Minecraft range: {dependencies.get('minecraft')}")
     if dependencies.get("fabricloader") != ">=0.19.5":
         fail(f"Unexpected Fabric Loader range: {dependencies.get('fabricloader')}")
@@ -230,7 +230,7 @@ def audit_metadata(archive: zipfile.ZipFile, names: set[str]) -> dict:
         fail(f"Unexpected suggested dependency keys: {set(suggestions)}")
     if suggestions.get("stepitup") != "*":
         fail("StepItUp must remain an optional suggested dependency")
-    if suggestions.get("modmenu") != ">=20.0.1":
+    if suggestions.get("modmenu") != ">=21.0.0-beta.1":
         fail("Mod Menu must remain an optional suggested dependency")
 
     missing_config_files = REQUIRED_CONFIG_FILES - names

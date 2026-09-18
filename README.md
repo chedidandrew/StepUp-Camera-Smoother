@@ -4,11 +4,11 @@
   <img src="src/main/resources/assets/stepup_camera_smoother/icon.png" alt="Smart StepUp Camera Smoother icon" width="160">
 </p>
 
-Smart StepUp Camera Smoother is a client-only Fabric mod for Minecraft Java Edition 26.2. It softens the camera movement caused when collision handling steps the player onto a higher surface.
+Smart StepUp Camera Smoother is a client-only Fabric mod for Minecraft Java Edition 26.3. It softens the camera movement caused when collision handling steps the player onto a higher surface.
 
-This release is designed around [StepItUp 3.0](https://modrinth.com/mod/stepitup/version/3.0-26.2-fabric), including its 1.25-block step height, while remaining useful for vanilla stairs, slabs, snow layers, and other mods that change the effective step height.
+The original 26.2 implementation was designed around [StepItUp 3.0](https://modrinth.com/mod/stepitup/version/3.0-26.2-fabric), including its 1.25-block step height, while remaining useful for vanilla stairs, slabs, snow layers, and other mods that change the effective step height.
 
-> Latest release: stable 0.1.0 for Minecraft 26.2 on Fabric. The published jar is reproduced from the verified candidate and protected by the repository's fail-closed SHA-256 release gate.
+> Current release build: 0.2.0 for Minecraft 26.3 on Fabric. Maintainer gameplay testing passed on September 18, 2026. The previous release is 0.1.0 for 26.2. See [26.3 validation](docs/MINECRAFT_26_3.md).
 
 ## What it does
 
@@ -26,13 +26,13 @@ This project is a distinct clean implementation. It does not contain code, asset
 
 | Component | Supported version | Relationship |
 |---|---:|---|
-| Minecraft Java Edition | 26.2 | Required |
-| Fabric Loader | 0.19.5 or newer within the 26.2 line | Required and tested |
+| Minecraft Java Edition | 26.3 | Required |
+| Fabric Loader | 0.19.5 or newer within the 26.3 line | Required and tested |
 | Java | 25 or newer | Required |
-| StepItUp | 3.0-26.2 Fabric | Optional, primary compatibility target |
-| Mod Menu | 20.0.1 | Optional configuration screen |
-| Fabric API | 0.159.0+26.2 | Development test fixture plus StepItUp and Mod Menu dependency |
-| Text Placeholder API | 3.1.0-beta.1+26.2 | Mod Menu dependency |
+| StepItUp | No verified 26.3 build available | Optional; compatibility pending |
+| Mod Menu | 21.0.0-beta.1 | Optional configuration screen |
+| Fabric API | 0.160.7+26.3 | Development test fixture plus StepItUp and Mod Menu dependency |
+| Text Placeholder API | 3.2.0+26.3 | Mod Menu dependency |
 
 Do not install another camera step-smoothing mod at the same time. Two mods applying the same visual correction can overcompensate.
 
@@ -40,10 +40,10 @@ See [Compatibility](docs/COMPATIBILITY.md) for the exact fixture and known bound
 
 ## Installation
 
-1. Install Fabric Loader for Minecraft 26.2.
+1. Install Fabric Loader for Minecraft 26.3.
 2. Put the verified `smart-stepup-camera-smoother-<version>.jar` in the instance `mods` folder.
-3. Optionally install Mod Menu 20.0.1, Fabric API, and Text Placeholder API to configure smoothness in game. A dependency-aware launcher normally installs the latter two automatically.
-4. Optionally install StepItUp, Fabric API, and Cloth Config if you want StepItUp's full-block stepping feature. Fabric API and Cloth Config are dependencies of StepItUp, not Smart StepUp Camera Smoother.
+3. Optionally install Mod Menu 21.0.0-beta.1, Fabric API, and Text Placeholder API to configure smoothness in game. A dependency-aware launcher normally installs the latter two automatically.
+4. For full-block stepping tests, enable cheats and use `/attribute @s minecraft:step_height base set 1.25`. StepItUp compatibility on 26.3 is pending a compatible upstream release.
 5. Start Minecraft once to create `config/stepup-camera-smoother.json`.
 
 The public rename does not change the internal mod ID `stepup_camera_smoother`, Java packages, resource namespace, or `config/stepup-camera-smoother.json`. Existing alpha installations upgrade in place and retain their configuration.
@@ -95,7 +95,7 @@ StepItUp changes the local player's effective step height before vanilla movemen
 
 An event qualifies only when a grounded, eligible player moves horizontally and the resolved vertical rise is greater than the requested vertical motion but no higher than `player.maxUpStep()` plus a small collision tolerance. Ordinary jumps and teleports do not meet those conditions.
 
-The camera correction runs in Minecraft 26.2's `Camera.alignWithEntity(float)` method after the perspective state is selected. Using `setPosition` keeps the camera's internal block position synchronized. In third person, vanilla then calculates camera distance and wall collision from the corrected pivot before frustum preparation.
+The camera correction runs in Minecraft 26.3's `Camera.alignWithEntity(float)` method after the perspective state is selected. Using `setPosition` keeps the camera's internal block position synchronized. In third person, vanilla then calculates camera distance and wall collision from the corrected pivot before frustum preparation.
 
 Direct position changes are also tracked. If the same player is corrected or teleported without passing through ordinary movement, the queued visual offset is cleared before the next camera sample.
 
@@ -108,7 +108,7 @@ The full design and invariants are in [Design](docs/DESIGN.md).
 python3 scripts/audit_jar.py
 ```
 
-The authoritative build runs on GitHub Actions with Java 25 and Gradle 9.5.1. It performs unit tests, a fail-closed jar audit, and real client boot tests in four profiles: standalone, Mod Menu only, StepItUp only, and StepItUp plus Mod Menu.
+The authoritative build runs on GitHub Actions with Java 25 and Gradle 9.6.0. It performs unit tests, a fail-closed jar audit, and real client boot tests in two available profiles: standalone and Mod Menu. StepItUp profiles remain unavailable until a verified 26.3 fixture exists.
 
 For the full process, see [Building](docs/BUILDING.md) and [Testing](docs/TESTING.md).
 

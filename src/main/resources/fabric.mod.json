@@ -28,7 +28,7 @@
   ],
   "depends": {
     "fabricloader": ">=${minimum_loader_version}",
-    "minecraft": ">=${minecraft_version} <26.3",
+    "minecraft": ">=${minecraft_version} <26.4",
     "java": ">=25"
   },
   "suggests": {
