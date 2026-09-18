@@ -41,3 +41,7 @@ Open Mods > Smart StepUp Camera Smoother > Configure. Compare Smoothness at 0%, 
 SHA-256: `827bd96542ef32294dfa2435321de8eeb75341d2bc7e6f957cff051a443bc947`
 
 The playable JAR passed the structural audit. No production Java files changed from 0.1.0.
+
+## Release authorization
+
+The gate-only release commit sets `release_ready=true` and records the tested artifact SHA-256. GitHub Actions must reproduce that checksum and pass its build, audit, and available client profiles before publishing v0.2.0. Local validation does not imply the remote workflow has completed.
