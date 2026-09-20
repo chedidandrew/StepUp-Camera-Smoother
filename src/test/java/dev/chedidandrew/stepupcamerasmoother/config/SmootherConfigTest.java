@@ -61,21 +61,29 @@ class SmootherConfigTest {
                 () -> assertEquals(1.5D, defaults.withSmoothingStrength(1.5D).smoothingStrength()),
                 () -> assertEquals(2.0D, defaults.withSmoothingStrength(2.0D).smoothingStrength()),
                 () -> assertEquals(2.0D, defaults.withSmoothingStrength(2.01D).smoothingStrength()),
-                () -> assertEquals(1.0D, defaults.withSmoothingStrength(Double.NaN).smoothingStrength()),
+                () -> assertEquals(1.5D, defaults.withSmoothingStrength(Double.NaN).smoothingStrength()),
                 () -> assertEquals(
-                        1.0D,
+                        1.5D,
                         defaults.withSmoothingStrength(Double.POSITIVE_INFINITY).smoothingStrength()
                 ),
                 () -> assertEquals(
-                        1.0D,
+                        1.5D,
                         defaults.withSmoothingStrength(Double.NEGATIVE_INFINITY).smoothingStrength()
                 )
         );
     }
 
     @Test
-    void defaultsEnableThirdPersonSmoothing() {
-        assertTrue(SmootherConfig.Snapshot.defaults().smoothThirdPerson());
+    void freshConfigurationUsesReleaseDefaults() throws IOException {
+        Path configPath = temporaryDirectory.resolve(SmootherConfig.FILE_NAME);
+        SmootherConfig.load(configPath, LOGGER);
+        assertEquals(1.5D, SmootherConfig.get().smoothingStrength());
+        assertFalse(SmootherConfig.get().smoothThirdPerson());
+        String json = Files.readString(configPath, StandardCharsets.UTF_8);
+        assertTrue(json.contains("\"smoothing_strength\": 1.5"));
+        assertTrue(json.contains("\"smooth_third_person\": false"));
+        SmootherConfig.load(configPath, LOGGER);
+        assertEquals(SmootherConfig.Snapshot.defaults(), SmootherConfig.get());
     }
 
     @Test
@@ -157,7 +165,7 @@ class SmootherConfigTest {
                         true,
                         1_000,
                         EasingCurve.SMOOTHERSTEP,
-                        1.0D,
+                        1.5D,
                         2.5D,
                         false,
                         false
@@ -179,7 +187,7 @@ class SmootherConfigTest {
     }
 
     @Test
-    void migratesVersionlessAlphaTwoConfigToThirdPersonEnabled() throws IOException {
+    void migratesVersionlessConfigWithoutOverwritingPreferences() throws IOException {
         Path configPath = temporaryDirectory.resolve(SmootherConfig.FILE_NAME);
         Files.writeString(
                 configPath,
@@ -206,7 +214,7 @@ class SmootherConfigTest {
                         EasingCurve.EXPONENTIAL,
                         1.75D,
                         7.75D,
-                        true,
+                        false,
                         true
                 ),
                 SmootherConfig.get()
@@ -215,7 +223,7 @@ class SmootherConfigTest {
         assertTrue(migrated.contains("\"config_version\": 1"));
         assertTrue(migrated.contains("\"recovery_duration_ms\": 731"));
         assertTrue(migrated.contains("\"smoothing_strength\": 1.75"));
-        assertTrue(migrated.contains("\"smooth_third_person\": true"));
+        assertTrue(migrated.contains("\"smooth_third_person\": false"));
     }
 
     @Test

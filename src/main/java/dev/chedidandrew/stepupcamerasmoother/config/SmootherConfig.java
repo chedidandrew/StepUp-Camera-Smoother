@@ -23,6 +23,7 @@ import java.util.Locale;
 /** JSON configuration storage shared by manual and in-game configuration. */
 public final class SmootherConfig {
     public static final String FILE_NAME = "stepup-camera-smoother.json";
+    public static final double DEFAULT_SMOOTHING_STRENGTH = 1.5D;
     public static final double MAXIMUM_SMOOTHING_STRENGTH = 2.0D;
 
     private static final Gson GSON = new GsonBuilder().setPrettyPrinting().create();
@@ -87,7 +88,6 @@ public final class SmootherConfig {
                         || parsed.configVersion < CURRENT_CONFIG_VERSION;
                 if (migrated) {
                     parsed.configVersion = CURRENT_CONFIG_VERSION;
-                    parsed.smoothThirdPerson = true;
                 }
                 loaded = parsed.toSnapshot();
             }
@@ -223,7 +223,7 @@ public final class SmootherConfig {
                     enabled,
                     recoveryDurationMilliseconds,
                     easing,
-                    clamp(value, 0.0D, MAXIMUM_SMOOTHING_STRENGTH, 1.0D),
+                    clamp(value, 0.0D, MAXIMUM_SMOOTHING_STRENGTH, DEFAULT_SMOOTHING_STRENGTH),
                     maximumCameraLag,
                     smoothThirdPerson,
                     debugLogging
@@ -255,13 +255,13 @@ public final class SmootherConfig {
         private String easing = "smootherstep";
 
         @SerializedName("smoothing_strength")
-        private double smoothingStrength = 1.0D;
+        private double smoothingStrength = DEFAULT_SMOOTHING_STRENGTH;
 
         @SerializedName("maximum_camera_lag")
         private double maximumCameraLag = 2.5D;
 
         @SerializedName("smooth_third_person")
-        private boolean smoothThirdPerson = true;
+        private boolean smoothThirdPerson = false;
 
         @SerializedName("debug_logging")
         private boolean debugLogging;
@@ -294,7 +294,7 @@ public final class SmootherConfig {
                             smoothingStrength,
                             0.0D,
                             MAXIMUM_SMOOTHING_STRENGTH,
-                            1.0D
+                            DEFAULT_SMOOTHING_STRENGTH
                     ),
                     clamp(
                             maximumCameraLag,

@@ -42,6 +42,10 @@ public abstract class SmokeTitleMixin {
         var old = toggle.getMessage().copy();
         stepup$click(screen,toggle.getX()+5,toggle.getY()+5);
         if (old.equals(toggle.getMessage())) throw new AssertionError("Toggle mouse input failed");
+        Button reset = stepup$button(screen, "stepup_camera_smoother.config.reset", true);
+        stepup$click(screen,reset.getX()+5,reset.getY()+5);
+        if (!(slider.getMessage().getContents() instanceof TranslatableContents resetLabel) || !resetLabel.getArgs()[0].toString().equals("150")) throw new AssertionError("Reset did not restore 150% smoothness");
+        if (!toggle.getMessage().equals(net.minecraft.network.chat.Component.translatable("stepup_camera_smoother.config.third_person", net.minecraft.network.chat.Component.translatable("stepup_camera_smoother.config.off")))) throw new AssertionError("Reset did not disable third person: " + toggle.getMessage());
         Button cancel = stepup$button(screen, "stepup_camera_smoother.config.cancel", true);
         stepup$click(screen,cancel.getX()+5,cancel.getY()+5);
         if (client.gui.screen()!=parent || !saved.equals(SmootherConfig.get())) throw new AssertionError("Cancel did not preserve saved config");

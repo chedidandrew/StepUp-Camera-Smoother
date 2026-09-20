@@ -8,9 +8,9 @@ Smart StepUp Camera Smoother is a client-only mod for Minecraft Java Edition, wi
 
 The original 26.2 implementation was designed around [StepItUp 3.0](https://modrinth.com/mod/stepitup/version/3.0-26.2-fabric), including its 1.25-block step height, while remaining useful for vanilla stairs, slabs, snow layers, and other mods that change the effective step height.
 
-> **Version matrix (0.3.0):** Fabric and NeoForge builds for Minecraft **26.1, 26.1.1, 26.1.2, 26.2, 26.3, 1.21.11, and 1.21.1**. See [builds and validation](docs/VERSION_MATRIX.md). Minecraft 26.x needs Java 25; 1.21.x needs Java 21. Install only the JAR matching your Minecraft version and loader.
+> **Version matrix (0.3.1):** Fabric and NeoForge builds for Minecraft **26.1, 26.1.1, 26.1.2, 26.2, 26.3, 1.21.11, and 1.21.1**. See [builds and validation](docs/VERSION_MATRIX.md). Minecraft 26.x needs Java 25; 1.21.x needs Java 21. Install only the JAR matching your Minecraft version and loader.
 
-> Maintainer gameplay testing passed on both 26.3 loaders. The additional versions receive automated unit, real-client, mouse-input, and packaging checks; this does not claim individual manual tests of every version.
+> Requested maintainer gameplay testing is complete; individual results are recorded in [the version matrix](docs/VERSION_MATRIX.md). Release 0.3.1 updates the defaults to **150% Smoothness / Third Person Off**, with automated unit, real-client, mouse-input, and packaging checks for every build. Existing saved preferences are preserved.
 
 > Previous Fabric release build: 0.2.0 for Minecraft 26.3 on Fabric. Maintainer gameplay testing passed on September 18, 2026. The previous release is 0.1.0 for 26.2. See [26.3 validation](docs/MINECRAFT_26_3.md).
 
@@ -20,7 +20,7 @@ The original 26.2 implementation was designed around [StepItUp 3.0](https://modr
 - Applies a render-only world-Y camera offset. Player position, hitbox, reach, physics, and network packets are unchanged.
 - Cancels the initial one-tick vertical snap, then eases the camera to the new height.
 - Handles consecutive steps by adding short-lived transitions with a bounded total lag.
-- Supports first-person plus rear and front third-person smoothing by default.
+- Smooths first-person steps by default, with optional rear and front third-person smoothing.
 - Resets immediately for jumps, swimming, ladders, flight, elytra, vehicles, spectator mode, death, respawn, world changes, and non-player movement sources.
 - Requires no configuration library, Architectury API, or direct StepItUp dependency. Mod Menu support is optional.
 
@@ -64,11 +64,11 @@ With Mod Menu installed, open **Mods**, select **Smart StepUp Camera Smoother**,
 
 - 0% leaves the original upward camera motion unchanged.
 - 50% smooths half of each upward camera snap.
-- 100% applies full smoothing and is the default.
-- 150% keeps full correction and extends the recovery to 1.5 times its configured duration.
+- 100% applies full smoothing.
+- 150% is the default; it keeps full correction and extends the recovery to 1.5 times its configured duration.
 - 200% keeps full correction and extends the recovery to twice its configured duration.
 
-The **Third Person** control enables or disables smoothing in both rear and front third-person views. Select **Done** to save and apply both values immediately. The current camera transition is cleared so the next eligible step uses the new settings. **Cancel** or Escape discards changes made on the screen. **Reset** restores 100% Smoothness and enables third-person smoothing without changing the other JSON settings.
+The **Third Person** control enables or disables smoothing in both rear and front third-person views. Select **Done** to save and apply both values immediately. The current camera transition is cleared so the next eligible step uses the new settings. **Cancel** or Escape discards changes made on the screen. Third-person smoothing is off by default. **Reset** restores 150% Smoothness and disables third-person smoothing without changing the other JSON settings.
 
 Mod Menu is an optional integration, not a dependency required to start or use the mod. Smart StepUp Camera Smoother does not use Cloth Config.
 
@@ -80,16 +80,16 @@ The generated file is `config/stepup-camera-smoother.json`:
   "enabled": true,
   "recovery_duration_ms": 180,
   "easing": "smootherstep",
-  "smoothing_strength": 1.0,
+  "smoothing_strength": 1.5,
   "maximum_camera_lag": 2.5,
-  "smooth_third_person": true,
+  "smooth_third_person": false,
   "debug_logging": false
 }
 ```
 
 The GUI slider stores `smoothing_strength` as a value from `0.0` to `2.0`. Values through `1.0` control how much of the step snap is corrected. Values above `1.0` retain full correction and multiply the recovery duration, up to twice the configured duration at `2.0`. Changes saved through Mod Menu take effect immediately. Restart the client after editing the JSON file manually.
 
-Versionless alpha.2 configurations are migrated once to `config_version: 1`, with third-person smoothing enabled. The migrated file retains the other validated settings. A configuration from a newer unsupported version is left untouched and safe defaults are used for that launch.
+Versionless alpha.2 configurations are migrated once to `config_version: 1`, preserving explicitly saved preferences. Missing settings use the current defaults. A configuration from a newer unsupported version is left untouched and safe defaults are used for that launch.
 
 Valid easing values are `linear`, `smoothstep`, `smootherstep`, and `exponential`. Values are clamped to safe ranges during loading. A malformed file is not overwritten and safe defaults are used for that launch.
 

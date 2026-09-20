@@ -1,4 +1,4 @@
-# Minecraft version matrix — 0.3.0
+# Minecraft version matrix — 0.3.1
 
 Separate Fabric and NeoForge JARs are built for every released 26.x version listed by Mojang on September 19, 2026, plus the two requested 1.21 versions. Snapshots and pre-releases are excluded. Each artifact declares exactly its intended Minecraft version.
 
@@ -12,7 +12,7 @@ Separate Fabric and NeoForge JARs are built for every released 26.x version list
 | 1.21.11 | 21 | 0.19.5 | 21.11.45 |
 | 1.21.1 | 21 | 0.19.5 | 21.1.251 |
 
-The mod itself is version 0.3.0, without a beta suffix. Some NeoForge dependencies are upstream beta builds; their exact names are preserved. Version pins are in `ports/versions.json` and the individual Gradle properties files.
+The mod itself is version 0.3.1, without a beta suffix. Some NeoForge dependencies are upstream beta builds; their exact names are preserved. Version pins are in `ports/versions.json` and the individual Gradle properties files.
 
 ## Shared behavior and adapters
 
@@ -43,7 +43,7 @@ On Linux, run the smoke command under `xvfb-run -a`. The CI matrix repeats these
 
 ## Upload files
 
-The collector creates `build/releases/0.3.0/` containing 14 clearly named playable JARs, `manifest.json`, and `SHA256SUMS.txt`. The sibling `smart-stepup-camera-smoother-0.3.0-all-ports.zip` is a convenience download; upload each matching JAR separately to the storefront, with its exact Minecraft version and loader. Do not upload sources JARs, test artifacts, or the combined ZIP as a mod file.
+The collector creates `build/releases/0.3.1/` containing 14 clearly named playable JARs, `manifest.json`, and `SHA256SUMS.txt`. The sibling `smart-stepup-camera-smoother-0.3.1-all-ports.zip` is a convenience download; upload each matching JAR separately to the storefront, with its exact Minecraft version and loader. Do not upload sources JARs, test artifacts, or the combined ZIP as a mod file.
 
 ## Evidence boundaries
 
@@ -54,3 +54,23 @@ The maintainer confirmed Fabric 26.3 and NeoForge 26.3 worked before this matrix
 All 14 build targets passed their 25 shared unit tests (350 successful test executions in total), all 14 real-client smoke runs completed with the exact success marker and clean exit, and all 14 playable JARs passed package audits. Client checks load both camera/player mixin targets and exercise slider, third-person toggle, and Cancel through screen mouse handlers. These are automated runtime checks, not claims of manually played worlds on every version.
 
 The final collector ran with `--require-smoke`. Recorded artifact identities are in [the 0.3.0 manifest](releases/0.3.0-manifest.json). Both original 26.3 project entrypoints were also rebuilt at version 0.3.0 and audited. The root `release_ready` latch remains false because its older single-artifact publisher is not used to publish this 14-artifact matrix. This does not mark the 0.3.0 JARs as beta; they are ready for separate user-controlled uploads.
+
+## Maintainer testing of 0.3.0 — September 20, 2026
+
+- Fabric 26.1: maintainer reported passed.
+- NeoForge 26.1: maintainer reported passed.
+- Fabric 26.1.1: maintainer reported passed.
+- NeoForge 26.1.1: maintainer reported passed.
+- Fabric 26.1.2: maintainer reported passed.
+- NeoForge 26.1.2: maintainer reported passed.
+- Fabric 26.2: maintainer reported passed.
+- NeoForge 26.2: maintainer reported passed.
+- Fabric 26.3: maintainer reported passed.
+- Fabric 1.21.1: maintainer reported passed.
+- NeoForge 1.21.1: maintainer confirmed passed; requested manual testing is complete.
+
+## Release 0.3.1 — September 20, 2026
+
+All 14 targets now default to 150% Smoothness and Third Person Off. Existing explicit settings are preserved, including during versionless configuration migration. Reset followed by Done adopts the new defaults. Camera motion logic is unchanged from the tested 0.3.0 builds.
+
+Release files: `build/releases/0.3.1/`. See [CurseForge changelog](releases/0.3.1.md) and [artifact manifest](releases/0.3.1-manifest.json). Automated release validation covers all 14 builds, 25 unit tests per build, and real-client slider, toggle, Reset, and Cancel interactions. The manual results above apply to 0.3.0 before this defaults update.

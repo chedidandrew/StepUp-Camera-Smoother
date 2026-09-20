@@ -4,14 +4,14 @@ from pathlib import Path
 import xml.etree.ElementTree as ET
 p=argparse.ArgumentParser();p.add_argument('--only',nargs='*');p.add_argument('--require-smoke',action='store_true');a=p.parse_args()
 root=Path(__file__).resolve().parents[1];versions=json.loads((root/'ports/versions.json').read_text())
-records=[];out=root/'build/releases/0.3.0';out.mkdir(parents=True,exist_ok=True)
+records=[];out=root/'build/releases/0.3.1';out.mkdir(parents=True,exist_ok=True)
 icon=(root/'src/main/resources/assets/stepup_camera_smoother/icon.png').read_bytes()
 for v in versions:
  mc=v['minecraft']
  for loader in ['fabric','neoforge']:
   if a.only and mc+'/'+loader not in a.only:continue
   project=root/'ports'/mc/loader
-  name=f'smart-stepup-camera-smoother-{loader}-mc{mc}-0.3.0.jar'
+  name=f'smart-stepup-camera-smoother-{loader}-mc{mc}-0.3.1.jar'
   jar=project/'build/libs'/name
   with zipfile.ZipFile(jar) as z:
    names=z.namelist();assert len(names)==len(set(names)),name
@@ -24,12 +24,12 @@ for v in versions:
    assert mixin['compatibilityLevel']=='JAVA_'+str(v['java']),name
    assert mixin['client']==['CameraMixin','LocalPlayerMixin'],name
    if loader=='fabric':
-    meta=json.loads(z.read('fabric.mod.json'));assert meta['version']=='0.3.0' and meta['environment']=='client',name
+    meta=json.loads(z.read('fabric.mod.json'));assert meta['version']=='0.3.1' and meta['environment']=='client',name
     assert meta['depends']['minecraft']==mc and meta['depends']['java']=='>='+str(v['java']),name
     assert 'META-INF/neoforge.mods.toml' not in names,name
    else:
     meta=tomllib.loads(z.read('META-INF/neoforge.mods.toml').decode())
-    assert meta['mods'][0]['version']=='0.3.0',name
+    assert meta['mods'][0]['version']=='0.3.1',name
     assert meta['mods'][0]['modId']=='stepup_camera_smoother',name
     assert meta['mods'][0]['logoFile' if mc in ['26.1','26.1.1','1.21.11','1.21.1'] else 'iconFile']=='assets/stepup_camera_smoother/icon.png',name
     deps=meta['dependencies']['stepup_camera_smoother'];assert any(d['modId']=='minecraft' and d['versionRange']=='['+mc+']' for d in deps),name
@@ -51,10 +51,11 @@ for v in versions:
   smoke='STEPUP_PORT_SMOKE_PASS' in text and 'BUILD SUCCESSFUL' in text
   if a.require_smoke:assert smoke,'Missing successful real-client test: '+name
   shutil.copy2(jar,out/name)
-  records.append(dict(minecraft=mc,loader=loader,version='0.3.0',java=v['java'],file=name,bytes=jar.stat().st_size,sha256=hashlib.sha256(jar.read_bytes()).hexdigest(),unit_tests=tests,client_smoke=smoke))
+  records.append(dict(minecraft=mc,loader=loader,version='0.3.1',java=v['java'],file=name,bytes=jar.stat().st_size,sha256=hashlib.sha256(jar.read_bytes()).hexdigest(),unit_tests=tests,client_smoke=smoke))
+shutil.copy2(root/'docs/releases/0.3.1.md',out/'CHANGELOG.md')
 (out/'manifest.json').write_text(json.dumps(records,indent=2)+'\n')
 (out/'SHA256SUMS.txt').write_text(''.join(r['sha256']+'  '+r['file']+'\n' for r in records))
 if not a.only:
- with zipfile.ZipFile(out.parent/'smart-stepup-camera-smoother-0.3.0-all-ports.zip','w',zipfile.ZIP_DEFLATED) as z:
-  for name in [r['file'] for r in records]+['manifest.json','SHA256SUMS.txt']:z.write(out/name,name)
+ with zipfile.ZipFile(out.parent/'smart-stepup-camera-smoother-0.3.1-all-ports.zip','w',zipfile.ZIP_DEFLATED) as z:
+  for name in [r['file'] for r in records]+['manifest.json','SHA256SUMS.txt','CHANGELOG.md']:z.write(out/name,name)
 print(f'PASS: {len(records)} audited playable JARs, exact version metadata, Java levels, loader isolation, unit results, and release checksums')
