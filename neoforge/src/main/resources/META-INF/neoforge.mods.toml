@@ -1,0 +1,22 @@
+license="MIT"
+issueTrackerURL="https://github.com/chedidandrew/StepUp-Camera-Smoother/issues"
+[[mods]]
+modId="stepup_camera_smoother"
+version="${version}"
+displayName="Smart StepUp Camera Smoother"
+authors="Andrew Chedid"
+displayURL="https://github.com/chedidandrew/StepUp-Camera-Smoother"
+iconFile="assets/stepup_camera_smoother/icon.png"
+description="Smooths the client camera when collision movement steps the player upward."
+[[mixins]]
+config="stepup_camera_smoother.client.mixins.json"
+[[dependencies.stepup_camera_smoother]]
+modId="neoforge"
+type="required"
+versionRange="[26.3.0.4-beta,)"
+side="CLIENT"
+[[dependencies.stepup_camera_smoother]]
+modId="minecraft"
+type="required"
+versionRange="[26.3,26.4)"
+side="CLIENT"

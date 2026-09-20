@@ -7,7 +7,7 @@ import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
 import com.google.gson.annotations.SerializedName;
 import dev.chedidandrew.stepupcamerasmoother.motion.EasingCurve;
-import net.fabricmc.loader.api.FabricLoader;
+
 import org.slf4j.Logger;
 
 import java.io.IOException;
@@ -41,8 +41,15 @@ public final class SmootherConfig {
         return current;
     }
 
+    private static Path configurationDirectory = Path.of("config");
+
+    public static void initialize(Path directory, Logger logger) {
+        configurationDirectory = directory;
+        load(logger);
+    }
+
     public static void load(Logger logger) {
-        Path configPath = FabricLoader.getInstance().getConfigDir().resolve(FILE_NAME);
+        Path configPath = configurationDirectory.resolve(FILE_NAME);
         load(configPath, logger);
     }
 
@@ -113,7 +120,7 @@ public final class SmootherConfig {
     }
 
     public static boolean save(Snapshot requested, Logger logger) {
-        Path configPath = FabricLoader.getInstance().getConfigDir().resolve(FILE_NAME);
+        Path configPath = configurationDirectory.resolve(FILE_NAME);
         return save(configPath, requested, logger);
     }
 

@@ -1,0 +1,77 @@
+import groovy.json.JsonSlurper
+import groovy.json.JsonOutput
+
+def smoke = providers.gradleProperty('smokeTest').map { it.toBoolean() }.getOrElse(false)
+if (smoke) layout.buildDirectory = file('build/smoke')
+def repo = rootDir.toPath().resolve('../../..').normalize().toFile()
+def mc = minecraft_version
+def family = loader_family
+def legacy = mc.startsWith('1.')
+def javaLevel = java_version.toInteger()
+version = mod_version
+group = 'dev.chedidandrew'
+base { archivesName = "smart-stepup-camera-smoother-${family}-mc${mc}" }
+repositories {
+    mavenCentral()
+    maven { url = 'https://maven.terraformersmc.com/releases/' }
+}
+java { toolchain.languageVersion = JavaLanguageVersion.of(javaLevel); withSourcesJar() }
+def generated = layout.buildDirectory.dir('generated/port')
+def generatePort = tasks.register('generatePort', Exec) {
+    inputs.dir(new File(repo, 'src/main'))
+    inputs.dir(new File(repo, 'src/client'))
+    inputs.dir(new File(repo, 'neoforge/src/main'))
+    inputs.dir(new File(repo, 'ports/compat'))
+    inputs.file(new File(repo, 'scripts/generate_port.py'))
+    inputs.properties([mc: mc, family: family, version: version.toString(), javaLevel: javaLevel, modmenu: modmenu_version, neo: neo_version, smoke: smoke])
+    outputs.dir(generated)
+    commandLine 'python', new File(repo, 'scripts/generate_port.py'), '--minecraft', mc, '--loader', family, '--version', version.toString(), '--java', javaLevel.toString(), '--modmenu', modmenu_version, '--neo', neo_version, '--smoke', smoke.toString(), '--output', generated.get().asFile
+}
+sourceSets.main.java.setSrcDirs([generated.map { it.dir('java') }])
+sourceSets.main.resources.setSrcDirs([generated.map { it.dir('resources') }])
+sourceSets.test.java.setSrcDirs([new File(repo, 'src/test/java')])
+tasks.named('compileJava') { dependsOn generatePort }
+tasks.named('processResources') { dependsOn generatePort }
+tasks.named('sourcesJar') { dependsOn generatePort }
+if (family == 'fabric') {
+    dependencies {
+        minecraft "com.mojang:minecraft:${mc}"
+        if (legacy) mappings loom.officialMojangMappings()
+        if (legacy) {
+            modImplementation 'net.fabricmc:fabric-loader:0.19.5'
+            modCompileOnly "com.terraformersmc:modmenu:${modmenu_version}"
+        } else {
+            implementation 'net.fabricmc:fabric-loader:0.19.5'
+            compileOnly "com.terraformersmc:modmenu:${modmenu_version}"
+        }
+    }
+    loom {
+        mods { stepup_camera_smoother { sourceSet sourceSets.main } }
+        if (smoke) runs.named('client') { runDir 'build/smoke/run' }
+    }
+} else {
+    neoForge {
+        version = neo_version
+        mods { stepup_camera_smoother { sourceSet(sourceSets.main) } }
+        runs { client { client(); if (smoke) gameDirectory = layout.buildDirectory.dir('run') } }
+    }
+}
+dependencies {
+    testImplementation 'org.slf4j:slf4j-api:2.0.17'
+    testImplementation 'com.google.code.gson:gson:2.14.0'
+    testImplementation platform('org.junit:junit-bom:5.14.2')
+    testImplementation 'org.junit.jupiter:junit-jupiter'
+    testRuntimeOnly 'org.junit.platform:junit-platform-launcher'
+}
+tasks.named('test', Test) { useJUnitPlatform() }
+tasks.withType(JavaCompile).configureEach { options.release = javaLevel; options.encoding = 'UTF-8' }
+tasks.withType(AbstractArchiveTask).configureEach { preserveFileTimestamps = false; reproducibleFileOrder = true }
+jar { from(new File(repo, 'LICENSE')) { rename { 'LICENSE_smart-stepup-camera-smoother' } } }
+
+if (smoke) tasks.named('runClient') {
+    doFirst {
+        def gameDir = file('build/smoke/run')
+        gameDir.mkdirs()
+        new File(gameDir, 'options.txt').text = 'onboardAccessibility:false\nlang:en_us\n'
+    }
+}

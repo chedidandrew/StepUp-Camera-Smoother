@@ -18,7 +18,7 @@ EXPECTED_MOD_ID = "stepup_camera_smoother"
 EXPECTED_MOD_NAME = "Smart StepUp Camera Smoother"
 EXPECTED_ARCHIVE_BASENAME = "smart-stepup-camera-smoother"
 EXPECTED_CLIENT_ENTRYPOINT = (
-    "dev.chedidandrew.stepupcamerasmoother.client.StepUpCameraSmootherClient"
+    "dev.chedidandrew.stepupcamerasmoother.platform.fabric.FabricClientEntrypoint"
 )
 EXPECTED_MODMENU_ENTRYPOINT = (
     "dev.chedidandrew.stepupcamerasmoother.client.StepUpCameraSmootherModMenu"

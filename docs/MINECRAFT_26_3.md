@@ -1,6 +1,6 @@
 # Minecraft 26.3 port — 0.2.0
 
-This is the Fabric port of 0.1.0. No NeoForge implementation exists in this repository. The maintainer confirmed the port works on September 18, 2026. This records the reported overall gameplay result, without claiming every suggested test case was individually completed.
+This record describes the original Fabric port of 0.1.0. A subsequent [NeoForge port](NEOFORGE_26_3.md) adds shared-source loader integration. Artifact hashes below identify the original Fabric release, before that integration. The maintainer confirmed the port works on September 18, 2026. This records the reported overall gameplay result, without claiming every suggested test case was individually completed.
 
 ## Dependencies and behavior
 
@@ -44,4 +44,6 @@ The playable JAR passed the structural audit. No production Java files changed f
 
 ## Release authorization
 
-The gate-only release commit sets `release_ready=true` and records the tested artifact SHA-256. GitHub Actions must reproduce that checksum and pass its build, audit, and available client profiles before publishing v0.2.0. Local validation does not imply the remote workflow has completed.
+The original Fabric gate-only release commit set `release_ready=true` and records the tested artifact SHA-256. GitHub Actions must reproduce that checksum and pass its build, audit, and available client profiles before publishing v0.2.0. Local validation does not imply the remote workflow has completed.
+
+The current dual-loader development source resets publication authorization while NeoForge manual testing is pending. Its rebuilt Fabric JAR has a new checksum because initialization now uses a thin loader adapter; the prior release artifact remains identified above.

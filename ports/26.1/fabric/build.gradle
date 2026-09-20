@@ -1,0 +1,2 @@
+plugins { id 'java-library'; id 'net.fabricmc.fabric-loom' version '1.17.21' }
+apply from: '../../common.gradle'

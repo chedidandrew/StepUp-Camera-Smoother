@@ -13,4 +13,4 @@ __pycache__/
 *.py[cod]
 
 # Runtime logs can also be emitted at the project root.
-/logs/
+logs/

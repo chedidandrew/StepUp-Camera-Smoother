@@ -1,0 +1,37 @@
+plugins {
+    id 'java-library'
+    id 'net.neoforged.moddev' version '2.0.147'
+}
+version = mod_version
+group = 'dev.chedidandrew'
+base { archivesName = 'smart-stepup-camera-smoother-neoforge' }
+repositories { mavenCentral() }
+java { toolchain.languageVersion = JavaLanguageVersion.of(25); withSourcesJar() }
+sourceSets.main.java {
+    setSrcDirs(['../src/main/java', '../src/client/java', 'src/main/java'])
+    exclude('**/platform/fabric/**', '**/StepUpCameraSmootherModMenu.java')
+}
+sourceSets.main.resources {
+    srcDir('../src/main/resources')
+    exclude('fabric.mod.json')
+}
+sourceSets.test.java.setSrcDirs(['../src/test/java'])
+neoForge {
+    version = neo_version
+    mods { stepup_camera_smoother { sourceSet(sourceSets.main) } }
+    runs { client { client() } }
+    unitTest { enable(); testedMod = mods.stepup_camera_smoother }
+}
+dependencies {
+    testImplementation platform('org.junit:junit-bom:5.14.2')
+    testImplementation 'org.junit.jupiter:junit-jupiter'
+    testRuntimeOnly 'org.junit.platform:junit-platform-launcher'
+}
+tasks.named('test', Test) { useJUnitPlatform() }
+tasks.withType(JavaCompile).configureEach { options.release = 25; options.encoding = 'UTF-8' }
+tasks.withType(AbstractArchiveTask).configureEach { preserveFileTimestamps = false; reproducibleFileOrder = true }
+processResources {
+    inputs.property 'version', project.version
+    filesMatching('META-INF/neoforge.mods.toml') { expand(version: project.version) }
+}
+jar { from('../LICENSE') { rename { 'LICENSE_smart-stepup-camera-smoother' } } }

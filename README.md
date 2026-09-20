@@ -4,11 +4,15 @@
   <img src="src/main/resources/assets/stepup_camera_smoother/icon.png" alt="Smart StepUp Camera Smoother icon" width="160">
 </p>
 
-Smart StepUp Camera Smoother is a client-only Fabric mod for Minecraft Java Edition 26.3. It softens the camera movement caused when collision handling steps the player onto a higher surface.
+Smart StepUp Camera Smoother is a client-only mod for Minecraft Java Edition, with Fabric and NeoForge builds for all released 26.x versions through 26.3, plus 1.21.11 and 1.21.1. It softens the camera movement caused when collision handling steps the player onto a higher surface.
 
 The original 26.2 implementation was designed around [StepItUp 3.0](https://modrinth.com/mod/stepitup/version/3.0-26.2-fabric), including its 1.25-block step height, while remaining useful for vanilla stairs, slabs, snow layers, and other mods that change the effective step height.
 
-> Current release build: 0.2.0 for Minecraft 26.3 on Fabric. Maintainer gameplay testing passed on September 18, 2026. The previous release is 0.1.0 for 26.2. See [26.3 validation](docs/MINECRAFT_26_3.md).
+> **Version matrix (0.3.0):** Fabric and NeoForge builds for Minecraft **26.1, 26.1.1, 26.1.2, 26.2, 26.3, 1.21.11, and 1.21.1**. See [builds and validation](docs/VERSION_MATRIX.md). Minecraft 26.x needs Java 25; 1.21.x needs Java 21. Install only the JAR matching your Minecraft version and loader.
+
+> Maintainer gameplay testing passed on both 26.3 loaders. The additional versions receive automated unit, real-client, mouse-input, and packaging checks; this does not claim individual manual tests of every version.
+
+> Previous Fabric release build: 0.2.0 for Minecraft 26.3 on Fabric. Maintainer gameplay testing passed on September 18, 2026. The previous release is 0.1.0 for 26.2. See [26.3 validation](docs/MINECRAFT_26_3.md).
 
 ## What it does
 

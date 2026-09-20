@@ -45,6 +45,21 @@ jobs:
       - name: Audit playable jar
         run: python3 scripts/audit_jar.py
 
+      - name: Build, test, and audit NeoForge
+        run: |
+          ./gradlew -p neoforge --no-daemon clean test build
+          python3 scripts/audit_neoforge_jar.py
+
+      - name: Upload NeoForge test artifact
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4
+        with:
+          name: Smart-StepUp-Camera-Smoother-NeoForge-${{ github.sha }}
+          path: |
+            neoforge/build/libs/*-neoforge-*.jar
+            !neoforge/build/libs/*-sources.jar
+            neoforge/build/checksums/*.sha256
+          if-no-files-found: error
+
       - name: Run bare client boot test
         run: xvfb-run -a ./gradlew --no-daemon runClientGameTest
 

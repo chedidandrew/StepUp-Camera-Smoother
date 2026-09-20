@@ -17,7 +17,7 @@
   "environment": "client",
   "entrypoints": {
     "client": [
-      "dev.chedidandrew.stepupcamerasmoother.client.StepUpCameraSmootherClient"
+      "dev.chedidandrew.stepupcamerasmoother.platform.fabric.FabricClientEntrypoint"
     ],
     "modmenu": [
       "dev.chedidandrew.stepupcamerasmoother.client.StepUpCameraSmootherModMenu"

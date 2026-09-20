@@ -1,0 +1,156 @@
+[
+  {
+    "minecraft": "26.1",
+    "loader": "fabric",
+    "version": "0.3.0",
+    "java": 25,
+    "file": "smart-stepup-camera-smoother-fabric-mc26.1-0.3.0.jar",
+    "bytes": 325952,
+    "sha256": "0fe6a5afabf6cac363521856147b6efdd6451f78df46f16eaf92d1ea43594157",
+    "unit_tests": 25,
+    "client_smoke": true
+  },
+  {
+    "minecraft": "26.1",
+    "loader": "neoforge",
+    "version": "0.3.0",
+    "java": 25,
+    "file": "smart-stepup-camera-smoother-neoforge-mc26.1-0.3.0.jar",
+    "bytes": 324847,
+    "sha256": "fd17df9fcfd919224ec5ecb6d7bdde1def1b7f16acc5866e81449d4c05cab5bd",
+    "unit_tests": 25,
+    "client_smoke": true
+  },
+  {
+    "minecraft": "26.1.1",
+    "loader": "fabric",
+    "version": "0.3.0",
+    "java": 25,
+    "file": "smart-stepup-camera-smoother-fabric-mc26.1.1-0.3.0.jar",
+    "bytes": 325957,
+    "sha256": "5869ba76786f0926dce53aa4d0a4d3207f8cc5c73e04806412a71cbc23dfeb5d",
+    "unit_tests": 25,
+    "client_smoke": true
+  },
+  {
+    "minecraft": "26.1.1",
+    "loader": "neoforge",
+    "version": "0.3.0",
+    "java": 25,
+    "file": "smart-stepup-camera-smoother-neoforge-mc26.1.1-0.3.0.jar",
+    "bytes": 324849,
+    "sha256": "1ba3e00f652bca4ddf4191a09f8d6029f83c951421518d4e2fb1b7cb19f9aeff",
+    "unit_tests": 25,
+    "client_smoke": true
+  },
+  {
+    "minecraft": "26.1.2",
+    "loader": "fabric",
+    "version": "0.3.0",
+    "java": 25,
+    "file": "smart-stepup-camera-smoother-fabric-mc26.1.2-0.3.0.jar",
+    "bytes": 325957,
+    "sha256": "f19d48713429a67fa924d5d23acff08da0fc50aebf05412c4d59010087c5fa03",
+    "unit_tests": 25,
+    "client_smoke": true
+  },
+  {
+    "minecraft": "26.1.2",
+    "loader": "neoforge",
+    "version": "0.3.0",
+    "java": 25,
+    "file": "smart-stepup-camera-smoother-neoforge-mc26.1.2-0.3.0.jar",
+    "bytes": 324846,
+    "sha256": "f5b0c13ae4689567c23fafec8ba8cd8598a17c63343a1c1d694bb0d9425d5c14",
+    "unit_tests": 25,
+    "client_smoke": true
+  },
+  {
+    "minecraft": "26.2",
+    "loader": "fabric",
+    "version": "0.3.0",
+    "java": 25,
+    "file": "smart-stepup-camera-smoother-fabric-mc26.2-0.3.0.jar",
+    "bytes": 325974,
+    "sha256": "d0a91d20e6617c471eca4d0d3557360d2d7765e489eb0205f19219306bb04f30",
+    "unit_tests": 25,
+    "client_smoke": true
+  },
+  {
+    "minecraft": "26.2",
+    "loader": "neoforge",
+    "version": "0.3.0",
+    "java": 25,
+    "file": "smart-stepup-camera-smoother-neoforge-mc26.2-0.3.0.jar",
+    "bytes": 324865,
+    "sha256": "c51264f3adfa11c95a2720f884d440e72e4cb6659a6abf73d334446a3a3d7a65",
+    "unit_tests": 25,
+    "client_smoke": true
+  },
+  {
+    "minecraft": "26.3",
+    "loader": "fabric",
+    "version": "0.3.0",
+    "java": 25,
+    "file": "smart-stepup-camera-smoother-fabric-mc26.3-0.3.0.jar",
+    "bytes": 325979,
+    "sha256": "fb33b338b46e2cf9eff8636de2fcaf65e3aae61df58e9920070482ea0c9911b0",
+    "unit_tests": 25,
+    "client_smoke": true
+  },
+  {
+    "minecraft": "26.3",
+    "loader": "neoforge",
+    "version": "0.3.0",
+    "java": 25,
+    "file": "smart-stepup-camera-smoother-neoforge-mc26.3-0.3.0.jar",
+    "bytes": 324866,
+    "sha256": "ee607b415b2d9fd7dd848d412fddd9dfce2c5f01b161397d1be7a575435a433a",
+    "unit_tests": 25,
+    "client_smoke": true
+  },
+  {
+    "minecraft": "1.21.11",
+    "loader": "fabric",
+    "version": "0.3.0",
+    "java": 21,
+    "file": "smart-stepup-camera-smoother-fabric-mc1.21.11-0.3.0.jar",
+    "bytes": 325861,
+    "sha256": "0a24d9676af7a5809e852ec7ea233f8c817928c022ea9cdd23bf7835ee732703",
+    "unit_tests": 25,
+    "client_smoke": true
+  },
+  {
+    "minecraft": "1.21.11",
+    "loader": "neoforge",
+    "version": "0.3.0",
+    "java": 21,
+    "file": "smart-stepup-camera-smoother-neoforge-mc1.21.11-0.3.0.jar",
+    "bytes": 324607,
+    "sha256": "9e08be51dd1d1711e3de18d8e74faa966e05b6de2d8e56119d409362b9b221e4",
+    "unit_tests": 25,
+    "client_smoke": true
+  },
+  {
+    "minecraft": "1.21.1",
+    "loader": "fabric",
+    "version": "0.3.0",
+    "java": 21,
+    "file": "smart-stepup-camera-smoother-fabric-mc1.21.1-0.3.0.jar",
+    "bytes": 325856,
+    "sha256": "7faefcf65dd76ad7162e3223865f894e775f29c0e2c1b1424dec73c93aa07408",
+    "unit_tests": 25,
+    "client_smoke": true
+  },
+  {
+    "minecraft": "1.21.1",
+    "loader": "neoforge",
+    "version": "0.3.0",
+    "java": 21,
+    "file": "smart-stepup-camera-smoother-neoforge-mc1.21.1-0.3.0.jar",
+    "bytes": 324609,
+    "sha256": "bbb8a4b64af20d0e841782b67eb89f2d1c7414e48d6fc5b8ce1b2216037673e5",
+    "unit_tests": 25,
+    "client_smoke": true
+  }
+]
