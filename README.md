@@ -8,9 +8,9 @@ Smart StepUp Camera Smoother is a client-only mod for Minecraft Java Edition, wi
 
 The original 26.2 implementation was designed around [StepItUp 3.0](https://modrinth.com/mod/stepitup/version/3.0-26.2-fabric), including its 1.25-block step height, while remaining useful for vanilla stairs, slabs, snow layers, and other mods that change the effective step height.
 
-> **Version matrix (0.3.1):** Fabric and NeoForge builds for Minecraft **26.1, 26.1.1, 26.1.2, 26.2, 26.3, 1.21.11, and 1.21.1**. See [builds and validation](docs/VERSION_MATRIX.md). Minecraft 26.x needs Java 25; 1.21.x needs Java 21. Install only the JAR matching your Minecraft version and loader.
+> **Version matrix (0.3.1):** 47 builds across Fabric, NeoForge, and Forge. The original 14 builds remain available; [33 additional ports](docs/releases/0.3.1-additional.md) cover the remaining Accessible Step version/loader combinations, including **1.20.1 Fabric and Forge**. See [builds and validation](docs/VERSION_MATRIX.md). Minecraft 1.20–1.20.4 needs Java 17, 1.20.5–1.21.11 needs Java 21, and 26.x needs Java 25. Install only the JAR matching your Minecraft version and loader.
 
-> Requested maintainer gameplay testing is complete; individual results are recorded in [the version matrix](docs/VERSION_MATRIX.md). Release 0.3.1 updates the defaults to **150% Smoothness / Third Person Off**, with automated unit, real-client, mouse-input, and packaging checks for every build. Existing saved preferences are preserved.
+> Maintainer gameplay testing of the original ports is complete; individual results are recorded in [the version matrix](docs/VERSION_MATRIX.md). Release 0.3.1 updates the defaults to **150% Smoothness / Third Person Off**, with automated unit, real-client, mouse-input, and packaging checks for every build. Existing saved preferences are preserved.
 
 > Previous Fabric release build: 0.2.0 for Minecraft 26.3 on Fabric. Maintainer gameplay testing passed on September 18, 2026. The previous release is 0.1.0 for 26.2. See [26.3 validation](docs/MINECRAFT_26_3.md).
 

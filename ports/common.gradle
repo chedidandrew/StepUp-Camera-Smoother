@@ -23,9 +23,9 @@ def generatePort = tasks.register('generatePort', Exec) {
     inputs.dir(new File(repo, 'neoforge/src/main'))
     inputs.dir(new File(repo, 'ports/compat'))
     inputs.file(new File(repo, 'scripts/generate_port.py'))
-    inputs.properties([mc: mc, family: family, version: version.toString(), javaLevel: javaLevel, modmenu: modmenu_version, neo: neo_version, smoke: smoke])
+    inputs.properties([mc: mc, family: family, version: version.toString(), javaLevel: javaLevel, modmenu: modmenu_version, neo: neo_version, forge: findProperty('forge_version') ?: '', smoke: smoke])
     outputs.dir(generated)
-    commandLine 'python', new File(repo, 'scripts/generate_port.py'), '--minecraft', mc, '--loader', family, '--version', version.toString(), '--java', javaLevel.toString(), '--modmenu', modmenu_version, '--neo', neo_version, '--smoke', smoke.toString(), '--output', generated.get().asFile
+    commandLine 'python', new File(repo, 'scripts/generate_port.py'), '--minecraft', mc, '--loader', family, '--version', version.toString(), '--java', javaLevel.toString(), '--modmenu', modmenu_version, '--neo', neo_version, '--forge', findProperty('forge_version') ?: '', '--smoke', smoke.toString(), '--output', generated.get().asFile
 }
 sourceSets.main.java.setSrcDirs([generated.map { it.dir('java') }])
 sourceSets.main.resources.setSrcDirs([generated.map { it.dir('resources') }])
@@ -39,7 +39,7 @@ if (family == 'fabric') {
         if (legacy) mappings loom.officialMojangMappings()
         if (legacy) {
             modImplementation 'net.fabricmc:fabric-loader:0.19.5'
-            modCompileOnly "com.terraformersmc:modmenu:${modmenu_version}"
+            modCompileOnly("com.terraformersmc:modmenu:${modmenu_version}") { transitive = false }
         } else {
             implementation 'net.fabricmc:fabric-loader:0.19.5'
             compileOnly "com.terraformersmc:modmenu:${modmenu_version}"
@@ -49,9 +49,84 @@ if (family == 'fabric') {
         mods { stepup_camera_smoother { sourceSet sourceSets.main } }
         if (smoke) runs.named('client') { runDir 'build/smoke/run' }
     }
+} else if (plugins.hasPlugin('net.neoforged.gradle.userdev')) {
+    dependencies { implementation "net.neoforged:neoforge:${neo_version}" }
+    runs {
+        client {
+            client()
+            modSource sourceSets.main
+            if (smoke) workingDirectory = file('build/smoke/run')
+        }
+    }
+} else if (plugins.hasPlugin('net.minecraftforge.gradle')) {
+    // Forge 1.20.4's module loader requires classes and resources in one output directory.
+    sourceSets.each {
+        def output = layout.buildDirectory.dir("sourceSets/${it.name}")
+        it.output.resourcesDir = output
+        it.java.destinationDirectory = output
+    }
+    minecraft {
+        mappings channel: 'official', version: mc
+        runs {
+            client {
+                workingDirectory file(smoke ? 'build/smoke/run' : 'run')
+                mods { stepup_camera_smoother { source sourceSets.main } }
+                property 'mixin.env.remapRefMap', 'true'
+                property 'mixin.env.refMapRemappingFile', layout.buildDirectory.file('createMixinMappings/reverse.srg').get().asFile.absolutePath
+                args '--mixin', 'stepup_camera_smoother.client.mixins.json'
+                if (smoke) args '--mixin', 'stepup_camera_smoother.smoke.mixins.json'
+            }
+        }
+    }
+    dependencies {
+        minecraft "net.minecraftforge:forge:${forge_version}"
+        annotationProcessor 'org.spongepowered:mixin:0.8.5:processor'
+    }
+    def mixinMappings = tasks.register('createMixinMappings') {
+        dependsOn 'createMcpToSrg'
+        def source = layout.buildDirectory.file('createMcpToSrg/output.tsrg')
+        def target = layout.buildDirectory.file('createMixinMappings/output.srg')
+        inputs.file(source)
+        outputs.file(target)
+        outputs.file(layout.buildDirectory.file('createMixinMappings/reverse.srg'))
+        doLast {
+            target.get().asFile.parentFile.mkdirs()
+            def loader = project.plugins.getPlugin('net.minecraftforge.gradle').class.classLoader
+            def mappingClass = loader.loadClass('net.minecraftforge.srgutils.IMappingFile')
+            def formatClass = loader.loadClass('net.minecraftforge.srgutils.IMappingFile$Format')
+            def mapping = mappingClass.load(source.get().asFile)
+            def format = formatClass.getField('SRG').get(null)
+            mapping.write(target.get().asFile.toPath(), format, false)
+            mapping.reverse().write(layout.buildDirectory.file('createMixinMappings/reverse.srg').get().asFile.toPath(), format, false)
+        }
+    }
+    tasks.named('compileJava') {
+        dependsOn mixinMappings
+        options.compilerArgs += ['-AreobfSrgFile=' + layout.buildDirectory.file('createMixinMappings/output.srg').get().asFile,
+                                '-AoutRefMapFile=' + destinationDirectory.file('stepup_camera_smoother.refmap.json').get().asFile,
+                                '-AdefaultObfuscationEnv=searge']
+    }
+    jar {
+        manifest.attributes('MixinConfigs': 'stepup_camera_smoother.client.mixins.json' + (smoke ? ',stepup_camera_smoother.smoke.mixins.json' : ''))
+        finalizedBy 'reobfJar'
+    }
+} else if (family == 'forge') {
+    legacyForge {
+        enable { forgeVersion = forge_version; disableRecompilation = true }
+        mods { stepup_camera_smoother { sourceSet(sourceSets.main) } }
+        runs { client { client(); if (smoke) gameDirectory = layout.buildDirectory.dir('run') } }
+    }
+    dependencies { annotationProcessor 'org.spongepowered:mixin:0.8.5:processor' }
+    mixin {
+        add sourceSets.main, 'stepup_camera_smoother.refmap.json'
+        config 'stepup_camera_smoother.client.mixins.json'
+        if (smoke) config 'stepup_camera_smoother.smoke.mixins.json'
+    }
+    jar { manifest.attributes('MixinConfigs': 'stepup_camera_smoother.client.mixins.json' + (smoke ? ',stepup_camera_smoother.smoke.mixins.json' : '')) }
 } else {
     neoForge {
-        version = neo_version
+        if (mc.startsWith('26.') || mc in ['1.21.1','1.21.11']) version = neo_version
+        else enable { version = neo_version; disableRecompilation = true }
         mods { stepup_camera_smoother { sourceSet(sourceSets.main) } }
         runs { client { client(); if (smoke) gameDirectory = layout.buildDirectory.dir('run') } }
     }
@@ -68,7 +143,7 @@ tasks.withType(JavaCompile).configureEach { options.release = javaLevel; options
 tasks.withType(AbstractArchiveTask).configureEach { preserveFileTimestamps = false; reproducibleFileOrder = true }
 jar { from(new File(repo, 'LICENSE')) { rename { 'LICENSE_smart-stepup-camera-smoother' } } }
 
-if (smoke) tasks.named('runClient') {
+if (smoke) tasks.matching { it.name == 'runClient' }.configureEach {
     doFirst {
         def gameDir = file('build/smoke/run')
         gameDir.mkdirs()

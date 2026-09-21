@@ -74,3 +74,19 @@ The final collector ran with `--require-smoke`. Recorded artifact identities are
 All 14 targets now default to 150% Smoothness and Third Person Off. Existing explicit settings are preserved, including during versionless configuration migration. Reset followed by Done adopts the new defaults. Camera motion logic is unchanged from the tested 0.3.0 builds.
 
 Release files: `build/releases/0.3.1/`. See [CurseForge changelog](releases/0.3.1.md) and [artifact manifest](releases/0.3.1-manifest.json). Automated release validation covers all 14 builds, 25 unit tests per build, and real-client slider, toggle, Reset, and Cancel interactions. The manual results above apply to 0.3.0 before this defaults update.
+
+## Additional ports — September 20, 2026
+
+[33 additional targets](releases/0.3.1-additional.md) match the combinations in Accessible Step's Modrinth version API that were absent from the original 14 builds. This includes 1.20.1 Fabric/Forge and 1.20.4 Forge. The exact sparse matrix is recorded in `ports/versions.json`; a row's `loaders` list overrides the default Fabric/NeoForge pair.
+
+The new files are collected separately in `build/releases/0.3.1-additional/`; the original 14 release files are unchanged. The additional ports use the existing 0.3.1 settings and shared motion logic. Minecraft 1.20 camera hooks capture the partial tick from `Camera.setup` and modify only the initial pivot's Y argument, before third-person collision, without depending on newer camera fields.
+
+Forge builds include production SRG remapping and mixin refmaps. Forge 1.20.4 uses ForgeGradle 6.0.54; early NeoForge 1.20.3 and 1.20.5 use NeoGradle. These three targets use the checked-in Gradle 8.14.3 wrapper and Java 21 to run Gradle, while compiling/running Minecraft with the target's Java toolchain. Java 17, 21, and 25 toolchains are installed in CI.
+
+To build only the additional targets, take the Minecraft/loader pairs from `docs/releases/accessible-step-targets.json` and pass them to `scripts/build_ports.py --only ...`. Run builds before the corresponding smoke runs; do not run both simultaneously for the same project. Collect using `scripts/package_ports.py --require-smoke --output-label 0.3.1-additional --only ...`.
+
+Automated client checks validate startup, camera/player mixin application, slider input, the third-person toggle, Reset to 150%/Off, and Cancel preserving saved preferences. These checks do not replace manual gameplay testing, and matching Accessible Step's version list does not certify every integration pairing.
+
+### Additional-port validation — September 21, 2026
+
+All 33 new targets passed their 25 shared unit tests (825 executions), real-client smoke checks, and production-JAR audits. The final Forge 1.20.4 build uses its required unified classes/resources output and remaps the production refmap back into development names for client testing. The [additional artifact manifest](releases/0.3.1-additional-manifest.json) records all 33 upload filenames and SHA-256 hashes. The original 14 release JARs were checked against their existing manifest and are unchanged.

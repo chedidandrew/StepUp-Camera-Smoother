@@ -1,0 +1,2 @@
+plugins { id 'java-library'; id 'net.neoforged.gradle.userdev' version '7.0.192' }
+apply from: '../../common.gradle'

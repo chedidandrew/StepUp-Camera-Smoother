@@ -1,0 +1,192 @@
+{
+  "source": "https://api.modrinth.com/v2/project/accessible-step/version",
+  "checked": "2026-09-20",
+  "additional_targets": [
+    {
+      "minecraft": "1.20",
+      "loaders": [
+        "fabric"
+      ],
+      "neoforge": "",
+      "forge": "1.20-46.0.14",
+      "modmenu": "7.0.1",
+      "java": 17
+    },
+    {
+      "minecraft": "1.20.1",
+      "loaders": [
+        "fabric",
+        "forge"
+      ],
+      "neoforge": "",
+      "forge": "1.20.1-47.4.23",
+      "modmenu": "7.2.2",
+      "java": 17
+    },
+    {
+      "minecraft": "1.20.2",
+      "loaders": [
+        "fabric"
+      ],
+      "neoforge": "20.2.93",
+      "forge": "1.20.2-48.1.0",
+      "modmenu": "8.0.1",
+      "java": 17
+    },
+    {
+      "minecraft": "1.20.3",
+      "loaders": [
+        "fabric",
+        "neoforge"
+      ],
+      "neoforge": "20.3.8-beta",
+      "forge": "1.20.3-49.0.2",
+      "modmenu": "9.0.0",
+      "java": 17
+    },
+    {
+      "minecraft": "1.20.4",
+      "loaders": [
+        "fabric",
+        "forge",
+        "neoforge"
+      ],
+      "neoforge": "20.4.251",
+      "forge": "1.20.4-49.2.9",
+      "modmenu": "9.2.0",
+      "java": 17
+    },
+    {
+      "minecraft": "1.20.5",
+      "loaders": [
+        "fabric",
+        "neoforge"
+      ],
+      "neoforge": "20.5.21-beta",
+      "forge": "",
+      "modmenu": "10.0.0",
+      "java": 21
+    },
+    {
+      "minecraft": "1.20.6",
+      "loaders": [
+        "fabric",
+        "neoforge"
+      ],
+      "neoforge": "20.6.141",
+      "forge": "1.20.6-50.2.10",
+      "modmenu": "10.0.0",
+      "java": 21
+    },
+    {
+      "minecraft": "1.21",
+      "loaders": [
+        "fabric",
+        "neoforge"
+      ],
+      "neoforge": "21.0.167",
+      "forge": "1.21-51.0.33",
+      "modmenu": "11.0.4",
+      "java": 21
+    },
+    {
+      "minecraft": "1.21.2",
+      "loaders": [
+        "fabric",
+        "neoforge"
+      ],
+      "neoforge": "21.2.1-beta",
+      "forge": "",
+      "modmenu": "12.0.1",
+      "java": 21
+    },
+    {
+      "minecraft": "1.21.3",
+      "loaders": [
+        "fabric",
+        "neoforge"
+      ],
+      "neoforge": "21.3.97",
+      "forge": "1.21.3-53.1.12",
+      "modmenu": "12.0.1",
+      "java": 21
+    },
+    {
+      "minecraft": "1.21.4",
+      "loaders": [
+        "fabric",
+        "neoforge"
+      ],
+      "neoforge": "21.4.157",
+      "forge": "1.21.4-54.1.18",
+      "modmenu": "13.0.4",
+      "java": 21
+    },
+    {
+      "minecraft": "1.21.5",
+      "loaders": [
+        "fabric",
+        "neoforge"
+      ],
+      "neoforge": "21.5.98",
+      "forge": "1.21.5-55.1.13",
+      "modmenu": "14.0.2",
+      "java": 21
+    },
+    {
+      "minecraft": "1.21.6",
+      "loaders": [
+        "fabric",
+        "neoforge"
+      ],
+      "neoforge": "21.6.20-beta",
+      "forge": "1.21.6-56.0.9",
+      "modmenu": "15.0.2",
+      "java": 21
+    },
+    {
+      "minecraft": "1.21.7",
+      "loaders": [
+        "fabric",
+        "neoforge"
+      ],
+      "neoforge": "21.7.25-beta",
+      "forge": "1.21.7-57.0.3",
+      "modmenu": "15.0.2",
+      "java": 21
+    },
+    {
+      "minecraft": "1.21.8",
+      "loaders": [
+        "fabric",
+        "neoforge"
+      ],
+      "neoforge": "21.8.54",
+      "forge": "1.21.8-58.1.22",
+      "modmenu": "15.0.2",
+      "java": 21
+    },
+    {
+      "minecraft": "1.21.9",
+      "loaders": [
+        "fabric",
+        "neoforge"
+      ],
+      "neoforge": "21.9.16-beta",
+      "forge": "1.21.9-59.0.5",
+      "modmenu": "16.0.1",
+      "java": 21
+    },
+    {
+      "minecraft": "1.21.10",
+      "loaders": [
+        "fabric",
+        "neoforge"
+      ],
+      "neoforge": "21.10.64",
+      "forge": "1.21.10-60.1.15",
+      "modmenu": "16.0.1",
+      "java": 21
+    }
+  ]
+}
